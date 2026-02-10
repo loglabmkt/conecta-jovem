@@ -58,18 +58,41 @@ export default function ConectaJovem() {
     <>
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@200;300;400;600;700;900&display=swap');
           
           * {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Titillium Web', sans-serif;
+            font-weight: 400;
           }
           
           h1, h2, h3, .title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Titillium Web', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+          }
+          
+          h1 {
+            font-weight: 900;
           }
           
           .friendly-text {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Titillium Web', sans-serif;
+            font-weight: 600;
+          }
+          
+          button, .button {
+            font-family: 'Titillium Web', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+          }
+          
+          p {
+            font-weight: 400;
+            line-height: 1.7;
+          }
+          
+          strong, b {
+            font-weight: 700;
           }
           
           .gradient-primary {
