@@ -11,6 +11,7 @@ import Footer from '../components/Footer';
 import BackToTopButton from '../components/BackToTopButton';
 import CookieConsentBanner from '../components/CookieConsentBanner';
 import AdminLogin from '../components/AdminLogin';
+import VideoPopup from '../components/VideoPopup';
 
 export default function ConectaJovem() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -160,6 +161,9 @@ export default function ConectaJovem() {
         
         {/* Cookie Consent Banner */}
         <CookieConsentBanner />
+        
+        {/* Video Popup */}
+        <VideoPopup />
       </div>
     </>
   );
