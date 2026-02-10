@@ -108,25 +108,7 @@ export default function Footer() {
             overflow: hidden;
           }
           
-          .desktop-social-icons {
-            display: flex;
-          }
-          
-          .mobile-instagram-container {
-            display: none;
-          }
-          
-          @media (max-width: 768px) {
-            .desktop-social-icons {
-              display: none;
-            }
-            
-            .mobile-instagram-container {
-              display: flex;
-              justify-content: center;
-              width: 100%;
-            }
-          }
+
         }
       `}</style>
       
@@ -240,35 +222,16 @@ export default function Footer() {
 
                 <h3 className="text-xl font-semibold text-white mb-4">Siga-nos:</h3>
                 
-                {/* Desktop Instagram Card */}
-                <div className="desktop-social-icons">
-                   <a href="https://www.instagram.com/conectajovem.tec/" target="_blank" rel="noopener noreferrer" className="w-full" aria-label="Abrir Instagram do Conecta Jovem">
-                     <motion.div
-                       whileHover={{ scale: 1.05 }}
-                       className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 flex items-center justify-center gap-4 min-h-[112px] h-full">
-                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                            <Instagram className="w-7 h-7 text-white" />
-                         </div>
-                         <span className="font-semibold text-lg text-white">@conectajovem.tec</span>
-                     </motion.div>
-                   </a>
-                </div>
-                
-                {/* Mobile Instagram Button */}
-                <div className="mobile-instagram-container">
-                  <a
-                    href="https://www.instagram.com/conectajovem.tec/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mobile-instagram-button"
-                    aria-label="Abrir Instagram do Conecta Jovem">
-
-                    <div className="mobile-instagram-icon">
-                      <Instagram className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="mobile-instagram-label">@conectajovem.tec</span>
-                  </a>
-                </div>
+                <a href="https://www.instagram.com/conectajovem.tec/" target="_blank" rel="noopener noreferrer" className="w-full" aria-label="Abrir Instagram do Conecta Jovem">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 flex items-center justify-center gap-4 min-h-[112px] h-full">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                         <Instagram className="w-7 h-7 text-white" />
+                      </div>
+                      <span className="font-semibold text-lg text-white">@conectajovem.tec</span>
+                  </motion.div>
+                </a>
               </motion.div>
 
             </div>
