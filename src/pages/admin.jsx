@@ -23,14 +23,14 @@ export default function admin() {
       setUsername(user || 'Admin');
     } else {
       // Redirecionar para login
-      window.location.href = createPageUrl('Login');
+      window.location.href = createPageUrl('ConectaJovem') + '?admin=true';
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_authenticated');
     localStorage.removeItem('admin_username');
-    window.location.href = createPageUrl('Login');
+    window.location.href = createPageUrl('ConectaJovem');
   };
 
   // Não renderizar nada até verificar autenticação
