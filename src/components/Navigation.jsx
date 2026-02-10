@@ -12,8 +12,7 @@ export default function Navigation() {
     { name: 'Sobre', href: '#sobre' },
     { name: 'Conteúdos', href: '#conteudos' },
     { name: 'Requisitos', href: '#elegibilidade' },
-    { name: 'Benefícios', href: '#beneficios' },
-    { name: 'Edital', href: 'https://loglabdigital.com.br/wp-content/uploads/2025/09/Programa-Jovem-Conecta-Edital-N%C2%B001.2025-1.pdf', external: true }
+    { name: 'Benefícios', href: '#beneficios' }
   ];
 
   const scrollToSection = (href) => {
