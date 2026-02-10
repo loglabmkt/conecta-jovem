@@ -12,6 +12,7 @@ import BackToTopButton from '../components/BackToTopButton';
 import CookieConsentBanner from '../components/CookieConsentBanner';
 import AdminLogin from '../components/AdminLogin';
 import VideoPopup from '../components/VideoPopup';
+import GaleriaImagens from '../components/GaleriaImagens';
 
 export default function ConectaJovem() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -160,6 +161,9 @@ export default function ConectaJovem() {
           <div id="sobre">
             <AboutSection />
           </div>
+          
+          {/* Galeria de Imagens */}
+          <GaleriaImagens />
           
           {/* Seção de Conteúdos Dinâmica */}
           <ConteudosSecao />

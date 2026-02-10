@@ -407,38 +407,7 @@ export default function AboutSection() {
             }
           </AnimatePresence>
 
-          {/* Bottom CTA Desktop */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            viewport={{ once: true }}
-            className="hidden md:block text-center mt-20 about-cta-mobile">
 
-            <motion.div
-              className="mb-8 p-8 inline-block glass-effect rounded-3xl border border-orange-200/50 glow-border"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}>
-
-              <h3 className="title text-2xl font-bold text-gray-900 mb-4">
-                🚀 Transforme sua paixão em profissão
-              </h3>
-              <p className="friendly-text text-lg text-gray-700 max-w-md">Junte-se a centenas de jovens que já estão construindo seu futuro na tecnologia
-              </p>
-            </motion.div>
-          </motion.div>
-
-          {/* Mobile version without animations */}
-          <div className="md:hidden text-center mt-20 about-cta-mobile">
-            <div className="mb-8 p-8 inline-block glass-effect rounded-3xl border border-orange-200/50">
-              <h3 className="title title text-gray-900 mb-4 text-base font-bold title">Transforme sua paixão em profissão
-
-              </h3>
-              <p className="friendly-text text-lg text-gray-700 max-w-md">Junte-se a centenas de jovens que já estão construindo seu futuro na tecnologia
-
-              </p>
-            </div>
-          </div>
         </div>
       </ParallaxSection>
     </>);
