@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
@@ -19,7 +18,7 @@ export default function RegistrationSection() {
   return (
     <>
       {/* Mobile-specific styles */}
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .registration-section-mobile {
             padding: 40px 0 !important;

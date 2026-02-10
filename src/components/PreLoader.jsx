@@ -126,7 +126,7 @@ export default function PreLoader({ isLoading, onLoadingComplete }) {
       </div>
 
       {/* CSS for Infinity Loader */}
-      <style jsx>{`
+      <style>{`
         .infinity-loader {
           width: 120px;
           height: 60px;

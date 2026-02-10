@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Code, Users, Award, Briefcase, Sparkles, ChevronDown } from 'lucide-react';
@@ -35,7 +34,7 @@ export default function AboutSection() {
   return (
     <>
       {/* Mobile-specific styles */}
-      <style jsx>{`
+      <style>{`
         .static-glow::before {
           content: '';
           position: absolute;

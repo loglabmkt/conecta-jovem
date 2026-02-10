@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Code2, Brain, Users2, Target } from 'lucide-react';
@@ -35,7 +34,7 @@ export default function WhyJoinSection() {
   return (
     <>
       {/* Mobile-specific styles */}
-      <style jsx>{`
+      <style>{`
         .section-beneficio {
         padding-top: -20px !important;
         margin-top: -100px !important;

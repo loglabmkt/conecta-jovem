@@ -70,7 +70,7 @@ export default function SliderPrincipal() {
 
   return (
     <>
-      <style jsx>{`
+      <style>{`
         .slider-container {
           position: relative;
           width: 100%;

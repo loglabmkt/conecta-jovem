@@ -58,7 +58,7 @@ export default function PaginaInstitucional() {
 
   return (
     <>
-      <style jsx>{`
+      <style>{`
         .hero-pagina {
           position: relative;
           width: 100%;

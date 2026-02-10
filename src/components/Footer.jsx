@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Instagram } from 'lucide-react';
@@ -48,7 +47,7 @@ export default function Footer() {
   return (
     <>
       {/* Mobile-specific styles */}
-      <style jsx>{`
+      <style>{`
         .section-footer {
         margin-top: -30px !important;
         }

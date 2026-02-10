@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
@@ -62,7 +61,7 @@ export default function HeroSection() {
   return (
     <>
       {/* Mobile-specific styles */}
-      <style jsx>{`
+      <style>{`
         /* Mobile smooth scrolling and scrollbar styling */
         @media (max-width: 768px) {
           html, body {

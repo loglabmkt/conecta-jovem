@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Calendar, MapPin, GraduationCap, Heart, CheckCircle } from 'lucide-react';
@@ -46,7 +45,7 @@ export default function EligibilitySection() {
   return (
     <>
       {/* Mobile-specific styles */}
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .eligibility-section-mobile {
             padding: 40px 0 !important;
