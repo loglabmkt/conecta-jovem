@@ -8,7 +8,7 @@ import PaginaManager from '../components/admin/PaginaManager';
 import DashboardOverview from '../components/admin/DashboardOverview';
 import { createPageUrl } from '@/utils';
 
-export default function Admin() {
+export default function admin() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
