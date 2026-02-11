@@ -168,20 +168,38 @@ export default function ConteudoForm({ conteudo, onClose }) {
 
           <div>
             <label className="block text-sm font-medium mb-2">Texto *</label>
-            <ReactQuill
-              value={formData.texto}
-              onChange={(value) => setFormData({ ...formData, texto: value })}
-              className="bg-white rounded"
-              modules={{
-                toolbar: [
-                  [{ 'header': [1, 2, 3, false] }],
-                  ['bold', 'italic', 'underline', 'strike'],
-                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                  ['link', 'image'],
-                  ['clean']
-                ]
-              }}
-            />
+            <div className="quill-editor-wrapper">
+              <ReactQuill
+                value={formData.texto}
+                onChange={(value) => setFormData({ ...formData, texto: value })}
+                className="bg-white rounded"
+                modules={{
+                  toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link', 'image'],
+                    ['clean']
+                  ]
+                }}
+              />
+            </div>
+            <style>{`
+              .quill-editor-wrapper .ql-container {
+                min-height: 200px;
+                font-size: 16px;
+              }
+              .quill-editor-wrapper .ql-editor {
+                min-height: 200px;
+              }
+              .quill-editor-wrapper .ql-toolbar {
+                background: #f9fafb;
+                border-radius: 0.5rem 0.5rem 0 0;
+              }
+              .quill-editor-wrapper .ql-container {
+                border-radius: 0 0 0.5rem 0.5rem;
+              }
+            `}</style>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
