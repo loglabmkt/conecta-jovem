@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Upload, X, Plus } from 'lucide-react';
 import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function ConteudoForm({ conteudo, onClose }) {
   const [formData, setFormData] = useState({
@@ -105,14 +106,63 @@ export default function ConteudoForm({ conteudo, onClose }) {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{conteudo ? 'Editar Conteúdo' : 'Novo Conteúdo'}</CardTitle>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
-      </CardHeader>
-      <CardContent>
+    <>
+      <style>{`
+        /* CRITICAL: Remove TODAS as setas de input number do Quill editor */
+        .conteudo-form-wrapper input[type=number]::-webkit-inner-spin-button,
+        .conteudo-form-wrapper input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none !important;
+          appearance: none !important;
+          margin: 0 !important;
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+          opacity: 0 !important;
+          visibility: hidden !important;
+        }
+        
+        .conteudo-form-wrapper input[type=number] {
+          -moz-appearance: textfield !important;
+          appearance: textfield !important;
+        }
+        
+        /* Força remoção de qualquer elemento que pareça seta */
+        .conteudo-form-wrapper .ql-picker-options,
+        .conteudo-form-wrapper .ql-toolbar button:after,
+        .conteudo-form-wrapper .ql-toolbar .ql-picker-label:after {
+          max-width: 20px !important;
+          max-height: 20px !important;
+        }
+        
+        /* Estilo do editor */
+        .conteudo-quill-editor .ql-container {
+          min-height: 300px;
+          border: 1px solid #d1d5db;
+          border-top: none;
+          border-radius: 0 0 0.5rem 0.5rem;
+        }
+        
+        .conteudo-quill-editor .ql-toolbar {
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem 0.5rem 0 0;
+          background: #f9fafb;
+        }
+        
+        .conteudo-quill-editor .ql-editor {
+          min-height: 300px;
+          font-size: 16px;
+          line-height: 1.6;
+        }
+      `}</style>
+      
+      <Card className="conteudo-form-wrapper">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>{conteudo ? 'Editar Conteúdo' : 'Novo Conteúdo'}</CardTitle>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
+        </CardHeader>
+        <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">Título *</label>
@@ -168,60 +218,21 @@ export default function ConteudoForm({ conteudo, onClose }) {
 
           <div>
             <label className="block text-sm font-medium mb-2">Texto *</label>
-            <div className="quill-editor-container">
-              <ReactQuill
-                theme="snow"
-                value={formData.texto}
-                onChange={(value) => setFormData({ ...formData, texto: value })}
-                modules={{
-                  toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'image'],
-                    ['clean']
-                  ]
-                }}
-              />
-            </div>
-            <style>{`
-              .quill-editor-container {
-                background: white;
-                border-radius: 0.5rem;
-              }
-              
-              .quill-editor-container .ql-toolbar {
-                background: #f9fafb;
-                border: 1px solid #e5e7eb;
-                border-radius: 0.5rem 0.5rem 0 0;
-              }
-              
-              .quill-editor-container .ql-container {
-                border: 1px solid #e5e7eb;
-                border-top: none;
-                border-radius: 0 0 0.5rem 0.5rem;
-                min-height: 250px;
-                font-size: 16px;
-              }
-              
-              .quill-editor-container .ql-editor {
-                min-height: 250px;
-                padding: 12px 15px;
-              }
-              
-              /* Remove setas de input number do Quill */
-              .quill-editor-container input[type="number"]::-webkit-outer-spin-button,
-              .quill-editor-container input[type="number"]::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-                display: none !important;
-              }
-              
-              .quill-editor-container input[type="number"] {
-                -moz-appearance: textfield;
-                appearance: textfield;
-              }
-            `}</style>
+            <ReactQuill
+              theme="snow"
+              value={formData.texto}
+              onChange={(value) => setFormData({ ...formData, texto: value })}
+              className="conteudo-quill-editor"
+              modules={{
+                toolbar: [
+                  [{ 'header': [1, 2, 3, false] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                  ['link', 'image'],
+                  ['clean']
+                ]
+              }}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -313,5 +324,6 @@ export default function ConteudoForm({ conteudo, onClose }) {
         </form>
       </CardContent>
     </Card>
+    </>
   );
 }
