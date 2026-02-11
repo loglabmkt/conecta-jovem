@@ -168,11 +168,11 @@ export default function ConteudoForm({ conteudo, onClose }) {
 
           <div>
             <label className="block text-sm font-medium mb-2">Texto *</label>
-            <div className="quill-editor-wrapper">
+            <div className="quill-editor-container">
               <ReactQuill
+                theme="snow"
                 value={formData.texto}
                 onChange={(value) => setFormData({ ...formData, texto: value })}
-                className="bg-white rounded"
                 modules={{
                   toolbar: [
                     [{ 'header': [1, 2, 3, false] }],
@@ -185,19 +185,41 @@ export default function ConteudoForm({ conteudo, onClose }) {
               />
             </div>
             <style>{`
-              .quill-editor-wrapper .ql-container {
-                min-height: 200px;
-                font-size: 16px;
+              .quill-editor-container {
+                background: white;
+                border-radius: 0.5rem;
               }
-              .quill-editor-wrapper .ql-editor {
-                min-height: 200px;
-              }
-              .quill-editor-wrapper .ql-toolbar {
+              
+              .quill-editor-container .ql-toolbar {
                 background: #f9fafb;
+                border: 1px solid #e5e7eb;
                 border-radius: 0.5rem 0.5rem 0 0;
               }
-              .quill-editor-wrapper .ql-container {
+              
+              .quill-editor-container .ql-container {
+                border: 1px solid #e5e7eb;
+                border-top: none;
                 border-radius: 0 0 0.5rem 0.5rem;
+                min-height: 250px;
+                font-size: 16px;
+              }
+              
+              .quill-editor-container .ql-editor {
+                min-height: 250px;
+                padding: 12px 15px;
+              }
+              
+              /* Remove setas de input number do Quill */
+              .quill-editor-container input[type="number"]::-webkit-outer-spin-button,
+              .quill-editor-container input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+                display: none !important;
+              }
+              
+              .quill-editor-container input[type="number"] {
+                -moz-appearance: textfield;
+                appearance: textfield;
               }
             `}</style>
           </div>
