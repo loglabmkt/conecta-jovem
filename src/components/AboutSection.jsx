@@ -412,6 +412,13 @@ export default function AboutSection() {
 
                     <h3>Sobre a LogLab</h3>
                     <p>A LogLab é uma fábrica de software sediada em Cuiabá (MT) especializada no desenvolvimento de soluções tecnológicas para o setor público. Nascida com o propósito de transformar a relação entre governo e cidadão por meio da inovação, a empresa combina excelência técnica, agilidade e profundo conhecimento dos processos da administração pública. Com um time multidisciplinar e altamente qualificado, a LogLab atua desde a concepção até a entrega de sistemas complexos, garantindo qualidade, segurança e impacto social em cada projeto. A empresa também se destaca pelo compromisso com o desenvolvimento de talentos locais, investindo em programas de formação e empregabilidade para jovens profissionais da região, fortalecendo o ecossistema de tecnologia do estado.</p>
+                    <div className="text-center mt-8">
+                      <a href="https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem" target="_blank" rel="noopener noreferrer">
+                        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full text-white font-bold text-lg gradient-primary shadow-lg">
+                          Fazer inscrição agora
+                        </button>
+                      </a>
+                    </div>
                   </div>
                 </div>
               </motion.div>
