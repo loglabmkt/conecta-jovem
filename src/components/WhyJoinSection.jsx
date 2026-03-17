@@ -233,20 +233,52 @@ export default function WhyJoinSection() {
                 </p>
               </div>
             </motion.div>
+
+            {/* Botão Edital - Desktop */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="mt-8">
+              <a
+                href="https://media.base44.com/files/public/68c833941e7874dfa03c2a0b/902061cc6_EditalConectaJovemn02-2026.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <motion.button
+                  className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full text-white font-bold text-lg border-2 border-white/40 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 shadow-lg"
+                  whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(255,255,255,0.2)" }}
+                  whileTap={{ scale: 0.98 }}>
+                  📄 Edital do Programa
+                </motion.button>
+              </a>
+            </motion.div>
           </motion.div>
 
           {/* Mobile version without animations */}
           <div className="md:hidden text-center">
             <div className="inline-block relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl blur-xl opacity-50" />
-              <div className="bg-gradient-to-r text-white mb-24 p-8 relative from-orange-500 to-yellow-500 rounded-3xl">
-                <h3 className="mb-4 text-base font-bold"> Sua jornada na tecnologia começa aqui!
-
-                </h3>
+              <div className="bg-gradient-to-r text-white mb-8 p-8 relative from-orange-500 to-yellow-500 rounded-3xl">
+                <h3 className="mb-4 text-base font-bold"> Sua jornada na tecnologia começa aqui!</h3>
                 <p className="text-xl text-orange-100">
                   Transforme sua paixão por tecnologia em um futuro cheio de possibilidades
                 </p>
               </div>
+            </div>
+
+            {/* Botão Edital - Mobile */}
+            <div className="mb-24">
+              <a
+                href="https://media.base44.com/files/public/68c833941e7874dfa03c2a0b/902061cc6_EditalConectaJovemn02-2026.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <button className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full text-white font-bold text-lg border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                  📄 Edital do Programa
+                </button>
+              </a>
             </div>
           </div>
         </div>
