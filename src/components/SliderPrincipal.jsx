@@ -79,19 +79,6 @@ export default function SliderPrincipal() {
           overflow: hidden;
         }
 
-        /* Mobile: Proporção 1080x1350 (4:5) */
-        @media (max-width: 767px) {
-          .slider-container {
-            height: auto;
-            aspect-ratio: 1080 / 1350;
-            max-height: 100vh;
-          }
-
-          .slider-image {
-            object-position: center center;
-          }
-        }
-
         /* Desktop: Full viewport height */
         @media (min-width: 768px) {
           .slider-container {
@@ -100,7 +87,12 @@ export default function SliderPrincipal() {
         }
       `}</style>
 
-      <section className="slider-container">
+      {/* Mobile: slider próprio com as imagens de campanha */}
+      <div className="md:hidden">
+        <MobileHeroSlider />
+      </div>
+
+      <section className="slider-container hidden md:block">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
