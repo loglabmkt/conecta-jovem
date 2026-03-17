@@ -112,12 +112,12 @@ export default function SliderPrincipal() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation Arrows - Desktop */}
+        {/* Navigation Arrows - Desktop only */}
         {slides.length > 1 && (
           <>
             <button
               onClick={prevSlide}
-              className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full items-center justify-center transition-all"
+              className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
               aria-label="Slide anterior"
             >
               <ChevronLeft className="w-6 h-6 text-white" />
