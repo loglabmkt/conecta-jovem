@@ -145,17 +145,19 @@ export default function RegistrationSection() {
               As inscrições são gratuitas e as vagas são limitadas. Não perca a oportunidade de transformar sua vida através da tecnologia.
             </p>
 
-            <div>
+            <div className="relative inline-block">
+              <div
+                className="absolute inset-0 rounded-full blur-2xl opacity-50"
+                style={{ background: 'linear-gradient(135deg, #e6ae4d, #d3733e)' }}
+              />
               <button
                 onClick={handleLearnMore}
-                className="text-cyan-400 hover:text-cyan-300 text-lg underline decoration-cyan-400/50 hover:decoration-cyan-300 transition-colors duration-300 inline-flex items-center gap-2">
-                Inscreva-se
-                <motion.span
-                  animate={{ x: [0, 3, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}>
-                  <ExternalLink className="w-4 h-4" />
-                </motion.span>
+                className="relative inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full text-white font-black text-lg tracking-wide shadow-2xl"
+                style={{ background: 'linear-gradient(135deg, #e6ae4d 0%, #d3733e 100%)' }}>
+                🚀 Inscreva-se agora
+                <ExternalLink className="w-5 h-5" />
               </button>
+              <p className="mt-3 text-gray-400 text-sm">Gratuito · Vagas limitadas</p>
             </div>
           </div>
         </div>
