@@ -115,7 +115,7 @@ export default function RegistrationSection() {
                 onClick={handleLearnMore}
                 className="text-cyan-400 hover:text-cyan-300 text-lg underline decoration-cyan-400/50 hover:decoration-cyan-300 transition-colors duration-300 inline-flex items-center gap-2">
                 
-                Ver passo a passo da inscrição
+                Inscreva-se
                 <motion.span
                   animate={{ x: [0, 3, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}>
@@ -138,7 +138,7 @@ export default function RegistrationSection() {
               <button
                 onClick={handleLearnMore}
                 className="text-cyan-400 hover:text-cyan-300 text-lg underline decoration-cyan-400/50 hover:decoration-cyan-300 transition-colors duration-300 inline-flex items-center gap-2">
-                Ver passo a passo da inscrição
+                Inscreva-se
                 <motion.span
                   animate={{ x: [0, 3, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}>
