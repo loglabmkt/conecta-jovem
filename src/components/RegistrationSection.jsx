@@ -125,6 +125,7 @@ export default function RegistrationSection() {
                   whileHover={{ scale: 1.07, boxShadow: '0 0 40px rgba(230,174,77,0.7)' }}
                   whileTap={{ scale: 0.97 }}>
                   🚀 Inscreva-se agora
+
                   <motion.span
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}>
