@@ -124,7 +124,7 @@ export default function SliderPrincipal() {
             </button>
             <button
               onClick={nextSlide}
-              className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full items-center justify-center transition-all"
+              className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
               aria-label="Próximo slide"
             >
               <ChevronRight className="w-6 h-6 text-white" />
