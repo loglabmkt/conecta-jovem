@@ -12,7 +12,8 @@ export default function Navigation() {
     { name: 'Sobre', href: '#sobre' },
     { name: 'Conteúdos', href: '#conteudos' },
     { name: 'Requisitos', href: '#elegibilidade' },
-    { name: 'Benefícios', href: '#beneficios' }
+    { name: 'Benefícios', href: '#beneficios' },
+    { name: 'Edital', href: 'https://media.base44.com/files/public/68c833941e7874dfa03c2a0b/902061cc6_EditalConectaJovemn02-2026.pdf', external: true }
   ];
 
   const scrollToSection = (href) => {
