@@ -153,7 +153,7 @@ export default function RegistrationSection() {
               />
               <button
                 onClick={handleLearnMore}
-                className="relative inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full text-white font-black text-lg tracking-wide shadow-2xl"
+                className="relative inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full text-white font-semibold text-lg tracking-wide shadow-2xl"
                 style={{ background: 'linear-gradient(135deg, #e6ae4d 0%, #d3733e 100%)' }}>
                 🚀 Inscreva-se agora
                 <ExternalLink className="w-5 h-5" />
