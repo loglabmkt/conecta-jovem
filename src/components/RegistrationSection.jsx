@@ -120,7 +120,7 @@ export default function RegistrationSection() {
                 />
                 <motion.button
                   onClick={handleLearnMore}
-                  className="relative inline-flex items-center justify-center gap-3 px-12 py-5 rounded-full text-white font-black text-xl tracking-wide shadow-2xl"
+                  className="relative inline-flex items-center justify-center gap-3 px-12 py-5 rounded-full text-white font-semibold text-xl tracking-wide shadow-2xl"
                   style={{ background: 'linear-gradient(135deg, #e6ae4d 0%, #d3733e 100%)' }}
                   whileHover={{ scale: 1.07, boxShadow: '0 0 40px rgba(230,174,77,0.7)' }}
                   whileTap={{ scale: 0.97 }}>
