@@ -105,24 +105,35 @@ export default function RegistrationSection() {
             </motion.p>
 
             <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.05 }}>
-              
-              <button
-                onClick={handleLearnMore}
-                className="text-cyan-400 hover:text-cyan-300 text-lg underline decoration-cyan-400/50 hover:decoration-cyan-300 transition-colors duration-300 inline-flex items-center gap-2">
-                
-                Inscreva-se
-                <motion.span
-                  animate={{ x: [0, 3, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}>
-                  
-                  <ExternalLink className="w-4 h-4" />
-                </motion.span>
-              </button>
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+              viewport={{ once: true }}>
+
+              {/* Glow pulse behind button */}
+              <div className="relative inline-block">
+                <motion.div
+                  className="absolute inset-0 rounded-full blur-2xl opacity-60"
+                  style={{ background: 'linear-gradient(135deg, #e6ae4d, #d3733e)' }}
+                  animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
+                  transition={{ duration: 2.5, repeat: Infinity }}
+                />
+                <motion.button
+                  onClick={handleLearnMore}
+                  className="relative inline-flex items-center justify-center gap-3 px-12 py-5 rounded-full text-white font-black text-xl tracking-wide shadow-2xl"
+                  style={{ background: 'linear-gradient(135deg, #e6ae4d 0%, #d3733e 100%)' }}
+                  whileHover={{ scale: 1.07, boxShadow: '0 0 40px rgba(230,174,77,0.7)' }}
+                  whileTap={{ scale: 0.97 }}>
+                  🚀 Inscreva-se agora
+                  <motion.span
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}>
+                    <ExternalLink className="w-5 h-5" />
+                  </motion.span>
+                </motion.button>
+              </div>
+
+              <p className="mt-4 text-gray-400 text-sm">Gratuito · Vagas limitadas</p>
             </motion.div>
           </motion.div>
 
