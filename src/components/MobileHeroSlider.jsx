@@ -71,23 +71,22 @@ export default function MobileHeroSlider() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Dot controls at the bottom */}
-      <div className="absolute bottom-5 left-0 right-0 flex justify-center gap-3 z-10">
-        {mobileSlides.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => goTo(idx)}
-            aria-label={`Slide ${idx + 1}`}
-            className="transition-all duration-300 rounded-full"
-            style={{
-              width: idx === current ? 28 : 10,
-              height: 10,
-              background: idx === current
-                ? 'linear-gradient(90deg, #e6ae4d, #d3733e)'
-                : 'rgba(255,255,255,0.5)',
-            }}
+      {/* CTA sobre a imagem */}
+      <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center z-10 px-6">
+        <a
+          href="https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-white font-semibold text-base shadow-2xl"
+          style={{ background: 'linear-gradient(135deg, #e6ae4d 0%, #d3733e 100%)' }}
+        >
+          <span
+            className="absolute inset-0 rounded-full blur-xl opacity-50"
+            style={{ background: 'linear-gradient(135deg, #e6ae4d, #d3733e)' }}
           />
-        ))}
+          <span className="relative">🚀 Inscreva-se agora</span>
+        </a>
+        <p className="mt-2 text-white/70 text-xs font-medium">Gratuito · Vagas limitadas</p>
       </div>
     </div>
   );
