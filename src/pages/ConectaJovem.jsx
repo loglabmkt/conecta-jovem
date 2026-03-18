@@ -13,6 +13,7 @@ import CookieConsentBanner from '../components/CookieConsentBanner';
 import AdminLogin from '../components/AdminLogin';
 import VideoPopup from '../components/VideoPopup';
 import GaleriaImagens from '../components/GaleriaImagens';
+import ClickTracker from '../components/ClickTracker';
 
 export default function ConectaJovem() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);

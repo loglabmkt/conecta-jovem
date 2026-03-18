@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Image, FileText, LogOut } from 'lucide-react';
+import { LayoutDashboard, Image, FileText, LogOut, BarChart2 } from 'lucide-react';
 import SliderManager from '../components/admin/SliderManager';
 import ConteudoManager from '../components/admin/ConteudoManager';
 import PaginaManager from '../components/admin/PaginaManager';
 import DashboardOverview from '../components/admin/DashboardOverview';
+import AnalyticsPanel from '../components/admin/AnalyticsPanel';
 import { createPageUrl } from '@/utils';
 
 export default function admin() {
