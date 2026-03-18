@@ -57,17 +57,19 @@ export default function MobileHeroSlider() {
           animate="center"
           exit="exit"
           transition={{
-            x: { type: 'spring', stiffness: 300, damping: 35 },
-            opacity: { duration: 0.4 },
-            scale: { duration: 0.4 },
+            x: { type: 'tween', duration: 0.6, ease: [0.77, 0, 0.175, 1] },
+            opacity: { duration: 0.5 },
           }}
           className="absolute inset-0"
         >
-          <img
+          <motion.img
             src={mobileSlides[current].url}
             alt={mobileSlides[current].alt}
             className="w-full h-full object-cover"
             draggable={false}
+            initial={{ scale: 1.08 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 6, ease: 'easeOut' }}
           />
         </motion.div>
       </AnimatePresence>
