@@ -87,22 +87,26 @@ export default function admin() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <LayoutDashboard className="w-4 h-4" />
-              Dashboard
+              <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
             <TabsTrigger value="slider" className="flex items-center gap-2">
               <Image className="w-4 h-4" />
-              Slider
+              <span className="hidden sm:inline">Slider</span>
             </TabsTrigger>
             <TabsTrigger value="conteudo" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Conteúdos
+              <span className="hidden sm:inline">Conteúdos</span>
             </TabsTrigger>
             <TabsTrigger value="paginas" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Páginas
+              <span className="hidden sm:inline">Páginas</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
           </TabsList>
 
@@ -120,6 +124,10 @@ export default function admin() {
 
           <TabsContent value="paginas">
             <PaginaManager />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsPanel />
           </TabsContent>
         </Tabs>
       </div>

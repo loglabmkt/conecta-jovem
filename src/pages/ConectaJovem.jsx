@@ -146,6 +146,7 @@ export default function ConectaJovem() {
         `}
       </style>
       
+      <ClickTracker />
       <div className="min-h-screen">
         {/* Scroll Progress Bar */}
         <ScrollProgressBar />
