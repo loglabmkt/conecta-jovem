@@ -154,35 +154,52 @@ export default function ConectaJovem() {
         <Navigation />
         
         <main>
-          {/* Slider Principal Dinâmico */}
-          <div id="hero">
-            <SliderPrincipal />
-          </div>
-          
-          <div id="sobre">
-            <AboutSection />
-          </div>
-          
-          {/* Galeria de Imagens */}
-          <GaleriaImagens />
-          
-          {/* Seção de Conteúdos Dinâmica */}
-          <ConteudosSecao />
-          
-          <div id="elegibilidade">
-            <EligibilitySection />
-          </div>
-          
-          <div id="beneficios">
-            <WhyJoinSection />
-          </div>
-          
-          <div id="inscricao">
-            <RegistrationSection />
-          </div>
+          {/* Hero */}
+          <StackingSection zIndex={1} isFirst>
+            <div id="hero">
+              <SliderPrincipal />
+            </div>
+          </StackingSection>
+
+          {/* Sobre */}
+          <StackingSection zIndex={2}>
+            <div id="sobre">
+              <AboutSection />
+            </div>
+          </StackingSection>
+
+          {/* Galeria + Conteúdos */}
+          <StackingSection zIndex={3}>
+            <GaleriaImagens />
+            <ConteudosSecao />
+          </StackingSection>
+
+          {/* Requisitos */}
+          <StackingSection zIndex={4}>
+            <div id="elegibilidade">
+              <EligibilitySection />
+            </div>
+          </StackingSection>
+
+          {/* Benefícios */}
+          <StackingSection zIndex={5}>
+            <div id="beneficios">
+              <WhyJoinSection />
+            </div>
+          </StackingSection>
+
+          {/* CTA / Inscrição */}
+          <StackingSection zIndex={6}>
+            <div id="inscricao">
+              <RegistrationSection />
+            </div>
+          </StackingSection>
         </main>
-        
-        <Footer />
+
+        {/* Footer */}
+        <StackingSection zIndex={7}>
+          <Footer />
+        </StackingSection>
         
         {/* Back to top button */}
         <BackToTopButton />
