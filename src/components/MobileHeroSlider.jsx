@@ -74,6 +74,24 @@ export default function MobileHeroSlider() {
         </motion.div>
       </AnimatePresence>
 
+      {/* Dots */}
+      <div className="absolute top-4 left-0 right-0 flex justify-center gap-2 z-10">
+        {mobileSlides.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => goTo(idx)}
+            className="transition-all duration-500 rounded-full"
+            style={{
+              width: idx === current ? 24 : 8,
+              height: 8,
+              background: idx === current
+                ? 'linear-gradient(90deg, #e6ae4d, #d3733e)'
+                : 'rgba(255,255,255,0.45)',
+            }}
+          />
+        ))}
+      </div>
+
       {/* CTA sobre a imagem */}
       <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center z-10 px-6">
         <a
