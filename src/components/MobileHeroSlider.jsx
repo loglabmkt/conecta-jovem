@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const mobileSlides = [
   {
+    url: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68c833941e7874dfa03c2a0b/588a91c5f_bannerfull_site.jpg',
+    alt: 'Formando jovens, transformando futuros'
+  },
+  {
     url: 'https://media.base44.com/images/public/68c833941e7874dfa03c2a0b/0add1e36b_conecta_Jovem_post_feed002.png',
     alt: 'Formando jovens, transformando futuros'
   },
