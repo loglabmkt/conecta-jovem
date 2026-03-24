@@ -374,7 +374,7 @@ export default function AboutSection() {
 
                       <h3 className="text-base md:text-lg font-bold text-neutral-800 mt-6 mb-2">Sobre a LogLab</h3>
                       <p className="text-base md:text-lg leading-relaxed text-justify mb-4">A LogLab é uma fábrica de software sediada em Cuiabá (MT) especializada no desenvolvimento de soluções tecnológicas para o setor público. Nascida com o propósito de transformar a relação entre governo e cidadão por meio da inovação, a empresa combina excelência técnica, agilidade e profundo conhecimento dos processos da administração pública. Com um time multidisciplinar e altamente qualificado, a LogLab atua desde a concepção até a entrega de sistemas complexos, garantindo qualidade, segurança e impacto social em cada projeto. A empresa também se destaca pelo compromisso com o desenvolvimento de talentos locais, investindo em programas de formação e empregabilidade para jovens profissionais da região, fortalecendo o ecossistema de tecnologia do estado.</p>
-                    <div className="text-center mt-10">
+                      <div className="text-center mt-10">
                         <motion.button
                           onClick={() => window.open('https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem', '_blank')}
                           className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full text-white font-bold text-lg relative overflow-hidden gradient-primary shadow-lg transition-all duration-300 group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-500"
@@ -383,9 +383,10 @@ export default function AboutSection() {
                           <span>Fazer inscrição agora</span>
                           <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transition-transform duration-500 transform -translate-x-full group-hover:translate-x-0"></div>
                         </motion.button>
-                    </div>
-                  </div>
-                </div>
+                      </div>
+                      </div>
+                      </div>
+                      </div>
 
                 {/* Mobile version with improved layout */}
                 <div className="md:hidden saiba-mais-panel">
@@ -417,6 +418,7 @@ export default function AboutSection() {
                           Fazer inscrição agora
                         </button>
                     </div>
+                  </div>
                 </div>
               </motion.div>
             }
