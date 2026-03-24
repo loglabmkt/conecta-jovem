@@ -118,7 +118,7 @@ export default function SliderPrincipal() {
           className="absolute inset-0 hidden md:flex items-center z-10 pointer-events-none"
           style={{ padding: '0 clamp(24px, 5vw, 80px)' }}
         >
-          <div style={{ maxWidth: 1280, width: '100%', margin: '0 auto', display: 'flex', alignItems: 'center', paddingTop: 20, pointerEvents: 'auto' }}>
+          <div style={{ maxWidth: 1280, width: '100%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', pointerEvents: 'auto' }}>
             <HeroFormDesktop />
           </div>
         </div>
