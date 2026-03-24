@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format, parseISO, isToday, isThisWeek, subWeeks, startOfWeek, endOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Users, Calendar, TrendingUp, BarChart2, Search, Download, Mail, Phone, Copy, Check, RefreshCw } from 'lucide-react';
+import { Users, Calendar, TrendingUp, BarChart2, Search, Download, Mail, Phone, Copy, Check, RefreshCw, CheckCircle2 } from 'lucide-react';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const ORIGEM_CONFIG = {
-  hero_desktop:   { label: '🖥 Desktop',  bg: '#DBEAFE', color: '#1D4ED8' },
-  modal_mobile:   { label: '📱 Mobile',   bg: '#DCFCE7', color: '#15803D' },
-  modal_cta:      { label: '🎯 CTA',      bg: '#FFEDD5', color: '#C2410C' },
-  modal_flutuante:{ label: '⚡ Flutuante', bg: '#EDE9FE', color: '#6D28D9' },
+  hero_desktop:    { label: '🖥 Desktop',   bg: '#DBEAFE', color: '#1D4ED8' },
+  modal_mobile:    { label: '📱 Mobile',    bg: '#DCFCE7', color: '#15803D' },
+  modal_cta:       { label: '🎯 CTA',       bg: '#FFEDD5', color: '#C2410C' },
+  modal_flutuante: { label: '⚡ Flutuante',  bg: '#EDE9FE', color: '#6D28D9' },
 };
 
 const AVATAR_COLORS = {
-  'ABCDEF': 'linear-gradient(135deg, #F97316, #EA580C)',
-  'GHIJKL': 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-  'MNOPQR': 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+  'ABCDEF':   'linear-gradient(135deg, #F97316, #EA580C)',
+  'GHIJKL':   'linear-gradient(135deg, #3B82F6, #1D4ED8)',
+  'MNOPQR':   'linear-gradient(135deg, #8B5CF6, #6D28D9)',
   'STUVWXYZ': 'linear-gradient(135deg, #10B981, #059669)',
 };
 
@@ -36,11 +36,12 @@ function formatDate(dateStr) {
 }
 
 function exportCSV(data) {
-  const headers = ['Nome', 'E-mail', 'WhatsApp', 'Origem', 'Data'];
+  const headers = ['Nome', 'E-mail', 'WhatsApp', 'Origem', 'Data', 'Contatado'];
   const rows = data.map(d => [
     d.nome, d.email, d.whatsapp,
     ORIGEM_CONFIG[d.origem]?.label || d.origem,
     formatDate(d.created_at || d.created_date),
+    d.contatado ? 'Sim' : 'Não',
   ].map(v => `"${(v || '').replace(/"/g, '""')}"`).join(','));
   const csv = [headers.join(','), ...rows].join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
@@ -50,12 +51,12 @@ function exportCSV(data) {
 }
 
 function exportXLSX(data) {
-  // Simple TSV that Excel can open
-  const headers = ['Nome', 'E-mail', 'WhatsApp', 'Origem', 'Data'];
+  const headers = ['Nome', 'E-mail', 'WhatsApp', 'Origem', 'Data', 'Contatado'];
   const rows = data.map(d => [
     d.nome, d.email, d.whatsapp,
     ORIGEM_CONFIG[d.origem]?.label || d.origem,
     formatDate(d.created_at || d.created_date),
+    d.contatado ? 'Sim' : 'Não',
   ].join('\t'));
   const tsv = [headers.join('\t'), ...rows].join('\n');
   const blob = new Blob(['\uFEFF' + tsv], { type: 'text/tab-separated-values;charset=utf-8' });
@@ -73,18 +74,15 @@ function openWhatsApp(inscricao) {
   window.open(url, '_blank');
 }
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 30;
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────────
 
 function MetricCard({ label, value, gradient, icon: Icon }) {
   return (
     <div style={{
-      background: '#FFFFFF',
-      borderRadius: 16,
-      overflow: 'hidden',
-      boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
-      border: '1px solid #F1F5F9',
+      background: '#FFFFFF', borderRadius: 16, overflow: 'hidden',
+      boxShadow: '0 1px 8px rgba(0,0,0,0.06)', border: '1px solid #F1F5F9',
     }}>
       <div style={{ background: gradient, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ color: '#fff', fontSize: 12, fontWeight: 600, opacity: 0.9 }}>{label}</span>
@@ -97,44 +95,6 @@ function MetricCard({ label, value, gradient, icon: Icon }) {
   );
 }
 
-function CopyButton({ inscricao }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    const text = [
-      `Nome: ${inscricao.nome}`,
-      `E-mail: ${inscricao.email}`,
-      `WhatsApp: ${inscricao.whatsapp}`,
-      `Inscrito em: ${formatDate(inscricao.created_at || inscricao.created_date)}`,
-    ].join('\n');
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  return (
-    <button onClick={handleCopy} style={{
-      background: copied ? '#DCFCE7' : '#F1F5F9',
-      color: copied ? '#15803D' : '#475569',
-      border: '1px solid #E2E8F0',
-      borderRadius: 10,
-      padding: '8px 14px',
-      fontSize: 13,
-      fontWeight: 600,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6,
-      transition: 'all 0.2s',
-      whiteSpace: 'nowrap',
-    }}>
-      {copied ? <Check style={{ width: 14, height: 14 }} /> : <Copy style={{ width: 14, height: 14 }} />}
-      {copied ? 'Copiado!' : 'Copiar dados'}
-    </button>
-  );
-}
-
 function WhatsAppIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -143,93 +103,135 @@ function WhatsAppIcon() {
   );
 }
 
-function InscricaoCard({ inscricao }) {
+function InscricaoRow({ inscricao, onToggleContatado }) {
+  const [copied, setCopied] = useState(false);
+  const [toggling, setToggling] = useState(false);
   const origem = ORIGEM_CONFIG[inscricao.origem] || { label: inscricao.origem, bg: '#F1F5F9', color: '#475569' };
   const dateStr = formatDate(inscricao.created_at || inscricao.created_date);
 
+  const handleCopy = () => {
+    const text = [`Nome: ${inscricao.nome}`, `E-mail: ${inscricao.email}`, `WhatsApp: ${inscricao.whatsapp}`, `Inscrito em: ${dateStr}`].join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleToggle = async () => {
+    setToggling(true);
+    await onToggleContatado(inscricao);
+    setToggling(false);
+  };
+
   return (
     <div style={{
-      background: '#FFFFFF',
-      borderRadius: 16,
-      border: '1px solid #F1F5F9',
-      boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
-      padding: 20,
-      transition: 'all 0.2s',
-      cursor: 'default',
+      background: '#FFFFFF', borderRadius: 12, border: '1px solid #F1F5F9',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.05)', padding: '14px 18px',
+      display: 'flex', alignItems: 'center', gap: 14, transition: 'box-shadow 0.2s',
+      flexWrap: 'wrap',
     }}
-    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.10)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 8px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'}
+    onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'}
     >
-      {/* Top row */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
-        {/* Avatar */}
-        <div style={{
-          width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
-          background: getAvatarBg(inscricao.nome),
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontSize: 20, fontWeight: 700,
-        }}>
-          {(inscricao.nome || '?')[0].toUpperCase()}
-        </div>
+      {/* Avatar */}
+      <div style={{
+        width: 42, height: 42, borderRadius: '50%', flexShrink: 0,
+        background: getAvatarBg(inscricao.nome),
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: '#fff', fontSize: 18, fontWeight: 700,
+      }}>
+        {(inscricao.nome || '?')[0].toUpperCase()}
+      </div>
 
-        {/* Info */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', margin: 0, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {inscricao.nome}
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-            <Mail style={{ width: 12, height: 12, color: '#94A3B8', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inscricao.email}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Phone style={{ width: 12, height: 12, color: '#94A3B8', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: '#64748B' }}>{inscricao.whatsapp}</span>
-          </div>
+      {/* Name + contacts */}
+      <div style={{ flex: '1 1 180px', minWidth: 0 }}>
+        <p style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', margin: 0, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {inscricao.nome}
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px 14px' }}>
+          <span style={{ fontSize: 12, color: '#64748B', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Mail style={{ width: 11, height: 11 }} /> {inscricao.email}
+          </span>
+          <span style={{ fontSize: 12, color: '#64748B', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Phone style={{ width: 11, height: 11 }} /> {inscricao.whatsapp}
+          </span>
         </div>
       </div>
 
-      {/* Origin + Date */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
-        <span style={{
-          background: origem.bg, color: origem.color,
-          fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
-        }}>
-          {origem.label}
-        </span>
-        <span style={{ fontSize: 12, color: '#94A3B8' }}>📅 {dateStr}</span>
-      </div>
+      {/* Origin badge */}
+      <span style={{
+        background: origem.bg, color: origem.color,
+        fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+        flexShrink: 0, whiteSpace: 'nowrap',
+      }}>
+        {origem.label}
+      </span>
+
+      {/* Date */}
+      <span style={{ fontSize: 12, color: '#94A3B8', flexShrink: 0, whiteSpace: 'nowrap' }}>
+        📅 {dateStr}
+      </span>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center', flexWrap: 'wrap' }}>
         <button
           onClick={() => openWhatsApp(inscricao)}
           style={{
-            background: '#25D366', color: '#fff',
-            border: 'none', borderRadius: 10,
-            padding: '9px 18px', fontSize: 13, fontWeight: 700,
-            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            flex: 1, justifyContent: 'center',
+            background: '#25D366', color: '#fff', border: 'none', borderRadius: 8,
+            padding: '7px 14px', fontSize: 12, fontWeight: 700,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
           }}
           onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.08)'}
           onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
         >
           <WhatsAppIcon /> WhatsApp
         </button>
-        <CopyButton inscricao={inscricao} />
+
+        <button onClick={handleCopy} style={{
+          background: copied ? '#DCFCE7' : '#F1F5F9',
+          color: copied ? '#15803D' : '#475569',
+          border: '1px solid #E2E8F0', borderRadius: 8,
+          padding: '7px 12px', fontSize: 12, fontWeight: 600,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+          whiteSpace: 'nowrap',
+        }}>
+          {copied ? <Check style={{ width: 13, height: 13 }} /> : <Copy style={{ width: 13, height: 13 }} />}
+          {copied ? 'Copiado!' : 'Copiar'}
+        </button>
+
+        {/* Contatado toggle */}
+        <button
+          onClick={handleToggle}
+          disabled={toggling}
+          title={inscricao.contatado ? 'Desfazer: mover de volta para Leads' : 'Marcar como contatado'}
+          style={{
+            background: inscricao.contatado ? '#DCFCE7' : '#F8FAFC',
+            color: inscricao.contatado ? '#15803D' : '#64748B',
+            border: `1.5px solid ${inscricao.contatado ? '#86EFAC' : '#E2E8F0'}`,
+            borderRadius: 8, padding: '7px 12px', fontSize: 12, fontWeight: 600,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+            transition: 'all 0.2s', whiteSpace: 'nowrap', opacity: toggling ? 0.6 : 1,
+          }}
+        >
+          <CheckCircle2 style={{ width: 14, height: 14 }} />
+          {inscricao.contatado ? 'Contatado' : 'Contatar?'}
+        </button>
       </div>
     </div>
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// ── Main Component ─────────────────────────────────────────────────────────────
 
 export default function InscricoesManager() {
   const [search, setSearch] = useState('');
   const [period, setPeriod] = useState('all');
   const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState('leads');
   const [lastCount, setLastCount] = useState(null);
   const [toast, setToast] = useState(null);
   const listRef = useRef(null);
+  const queryClient = useQueryClient();
 
   const { data: inscricoes = [], isLoading, dataUpdatedAt, refetch } = useQuery({
     queryKey: ['inscricoes-manager'],
@@ -237,7 +239,6 @@ export default function InscricoesManager() {
     refetchInterval: 60000,
   });
 
-  // New inscription toast
   useEffect(() => {
     if (lastCount !== null && inscricoes.length > lastCount) {
       const newest = inscricoes[0];
@@ -247,17 +248,16 @@ export default function InscricoesManager() {
     setLastCount(inscricoes.length);
   }, [inscricoes.length]);
 
+  const handleToggleContatado = async (inscricao) => {
+    await base44.entities.Inscricao.update(inscricao.id, { contatado: !inscricao.contatado });
+    queryClient.invalidateQueries({ queryKey: ['inscricoes-manager'] });
+  };
+
   // Metrics
   const today = new Date();
   const totalCount = inscricoes.length;
-  const todayCount = inscricoes.filter(i => {
-    const d = i.created_date || i.created_at;
-    return d && isToday(parseISO(d));
-  }).length;
-  const weekCount = inscricoes.filter(i => {
-    const d = i.created_date || i.created_at;
-    return d && isThisWeek(parseISO(d), { locale: ptBR });
-  }).length;
+  const todayCount = inscricoes.filter(i => { const d = i.created_date || i.created_at; return d && isToday(parseISO(d)); }).length;
+  const weekCount = inscricoes.filter(i => { const d = i.created_date || i.created_at; return d && isThisWeek(parseISO(d), { locale: ptBR }); }).length;
   const prevWeekStart = startOfWeek(subWeeks(today, 1), { locale: ptBR });
   const prevWeekEnd = endOfWeek(subWeeks(today, 1), { locale: ptBR });
   const prevWeekCount = inscricoes.filter(i => {
@@ -268,26 +268,24 @@ export default function InscricoesManager() {
   }).length;
   const growth = prevWeekCount === 0 ? 100 : Math.round(((weekCount - prevWeekCount) / prevWeekCount) * 100);
 
-  // Filter
-  const filtered = inscricoes.filter(i => {
+  const naoContatados = inscricoes.filter(i => !i.contatado);
+  const contatados = inscricoes.filter(i => i.contatado);
+  const source = activeTab === 'leads' ? naoContatados : contatados;
+
+  const filtered = source.filter(i => {
     const q = search.toLowerCase();
     const matchSearch = !q ||
       (i.nome || '').toLowerCase().includes(q) ||
       (i.email || '').toLowerCase().includes(q) ||
       (i.whatsapp || '').includes(q);
-
     const d = i.created_date || i.created_at;
     let matchPeriod = true;
     if (period === 'today') matchPeriod = d && isToday(parseISO(d));
     else if (period === '7d') matchPeriod = d && isThisWeek(parseISO(d), { locale: ptBR });
-    else if (period === '30d') {
-      const limit = new Date(); limit.setDate(limit.getDate() - 30);
-      matchPeriod = d && parseISO(d) >= limit;
-    }
+    else if (period === '30d') { const limit = new Date(); limit.setDate(limit.getDate() - 30); matchPeriod = d && parseISO(d) >= limit; }
     return matchSearch && matchPeriod;
   });
 
-  // Pagination
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -310,14 +308,13 @@ export default function InscricoesManager() {
           background: '#F0FDF4', border: '1px solid #86EFAC',
           borderRadius: 12, padding: '14px 20px',
           fontSize: 14, fontWeight: 600, color: '#15803D',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-          maxWidth: 340,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)', maxWidth: 340,
         }}>
           {toast}
         </div>
       )}
 
-      {/* Header row */}
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
         <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', margin: 0 }}>Inscrições</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -340,13 +337,43 @@ export default function InscricoesManager() {
         <MetricCard label={`Crescimento ${growth >= 0 ? '+' : ''}${growth}%`} value={`${growth >= 0 ? '+' : ''}${growth}%`} gradient="linear-gradient(135deg, #10B981, #059669)" icon={TrendingUp} />
       </div>
 
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 0, marginBottom: 20, background: '#F1F5F9', borderRadius: 12, padding: 4, width: 'fit-content' }}>
+        {[
+          { key: 'leads', label: '📋 Novos Leads', count: naoContatados.length },
+          { key: 'relacionamento', label: '✅ Relacionamento', count: contatados.length },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => { setActiveTab(tab.key); setPage(1); }}
+            style={{
+              background: activeTab === tab.key ? '#fff' : 'transparent',
+              color: activeTab === tab.key ? '#0F172A' : '#64748B',
+              border: 'none', borderRadius: 9, padding: '9px 18px',
+              fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 500,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+              boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+              transition: 'all 0.15s',
+            }}
+          >
+            {tab.label}
+            <span style={{
+              background: activeTab === tab.key ? 'linear-gradient(135deg, #F97316, #EA580C)' : '#CBD5E1',
+              color: '#fff', fontSize: 11, fontWeight: 700,
+              borderRadius: 20, padding: '2px 8px', minWidth: 24, textAlign: 'center',
+            }}>
+              {tab.count}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Toolbar */}
       <div style={{
         background: '#fff', borderRadius: 16, border: '1px solid #F1F5F9',
         boxShadow: '0 1px 8px rgba(0,0,0,0.06)', padding: '16px 20px',
-        marginBottom: 24, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center',
+        marginBottom: 20, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center',
       }}>
-        {/* Search */}
         <div style={{ position: 'relative', flex: '1 1 220px', minWidth: 200 }}>
           <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#94A3B8' }} />
           <input
@@ -356,13 +383,11 @@ export default function InscricoesManager() {
             style={{
               width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 10, paddingBottom: 10,
               border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: 13,
-              color: '#1E293B', outline: 'none', boxSizing: 'border-box',
-              background: '#F8FAFC',
+              color: '#1E293B', outline: 'none', boxSizing: 'border-box', background: '#F8FAFC',
             }}
           />
         </div>
 
-        {/* Period filter */}
         <div style={{ display: 'flex', gap: 4, background: '#F1F5F9', borderRadius: 10, padding: 4 }}>
           {[['all','Todos'],['today','Hoje'],['7d','7 dias'],['30d','30 dias']].map(([val, lbl]) => (
             <button key={val} onClick={() => { setPeriod(val); setPage(1); }} style={{
@@ -376,7 +401,6 @@ export default function InscricoesManager() {
           ))}
         </div>
 
-        {/* Export */}
         <button onClick={() => exportCSV(filtered)} style={{
           background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10,
           padding: '9px 14px', fontSize: 13, fontWeight: 600, color: '#475569',
@@ -392,67 +416,51 @@ export default function InscricoesManager() {
           <Download style={{ width: 14, height: 14 }} /> Excel
         </button>
 
-        {/* Counter */}
         <span style={{ fontSize: 12, color: '#94A3B8', marginLeft: 'auto', whiteSpace: 'nowrap' }}>
           Exibindo {paginated.length} de {filtered.length} inscrições
         </span>
       </div>
 
       {/* List */}
-      <div ref={listRef}>
+      <div ref={listRef} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: 60, color: '#94A3B8', fontSize: 14 }}>Carregando inscrições...</div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{ fontSize: 64, marginBottom: 16 }}>👤</div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>Nenhuma inscrição ainda</h3>
-            <p style={{ fontSize: 14, color: '#64748B', marginBottom: 24 }}>As inscrições realizadas na landing page aparecerão aqui automaticamente</p>
-            <button
-              onClick={() => window.open('/', '_blank')}
-              style={{
-                background: 'linear-gradient(135deg, #F97316, #EA580C)', color: '#fff',
-                border: 'none', borderRadius: 10, padding: '10px 24px',
-                fontSize: 14, fontWeight: 700, cursor: 'pointer',
-              }}
-            >
-              Ver landing page
-            </button>
+            <div style={{ fontSize: 64, marginBottom: 16 }}>{activeTab === 'relacionamento' ? '✅' : '👤'}</div>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>
+              {activeTab === 'relacionamento' ? 'Nenhum lead contatado ainda' : 'Nenhuma inscrição encontrada'}
+            </h3>
+            <p style={{ fontSize: 14, color: '#64748B' }}>
+              {activeTab === 'relacionamento'
+                ? 'Marque leads como contatados usando o botão ✅ na aba Novos Leads'
+                : 'As inscrições realizadas na landing page aparecerão aqui automaticamente'}
+            </p>
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: 16,
-          }}>
-            {paginated.map(i => <InscricaoCard key={i.id} inscricao={i} />)}
-          </div>
+          paginated.map(i => (
+            <InscricaoRow key={i.id} inscricao={i} onToggleContatado={handleToggleContatado} />
+          ))
         )}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 32, flexWrap: 'wrap' }}>
-          <button
-            disabled={page === 1}
-            onClick={() => handlePageChange(page - 1)}
-            style={{
-              background: '#fff', border: '1px solid #E2E8F0', borderRadius: 8,
-              padding: '8px 16px', fontSize: 13, fontWeight: 600,
-              color: page === 1 ? '#CBD5E1' : '#475569', cursor: page === 1 ? 'not-allowed' : 'pointer',
-            }}
-          >
-            ← Anterior
-          </button>
+          <button disabled={page === 1} onClick={() => handlePageChange(page - 1)} style={{
+            background: '#fff', border: '1px solid #E2E8F0', borderRadius: 8,
+            padding: '8px 16px', fontSize: 13, fontWeight: 600,
+            color: page === 1 ? '#CBD5E1' : '#475569', cursor: page === 1 ? 'not-allowed' : 'pointer',
+          }}>← Anterior</button>
 
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
             .reduce((acc, p, idx, arr) => {
               if (idx > 0 && arr[idx - 1] !== p - 1) acc.push('...');
-              acc.push(p);
-              return acc;
+              acc.push(p); return acc;
             }, [])
             .map((p, idx) => p === '...' ? (
-              <span key={`ellipsis-${idx}`} style={{ color: '#94A3B8', padding: '0 4px' }}>…</span>
+              <span key={`e-${idx}`} style={{ color: '#94A3B8', padding: '0 4px' }}>…</span>
             ) : (
               <button key={p} onClick={() => handlePageChange(p)} style={{
                 background: p === page ? 'linear-gradient(135deg, #F97316, #EA580C)' : '#fff',
@@ -460,24 +468,16 @@ export default function InscricoesManager() {
                 border: p === page ? 'none' : '1px solid #E2E8F0',
                 borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 700,
                 cursor: 'pointer', minWidth: 38,
-              }}>
-                {p}
-              </button>
+              }}>{p}</button>
             ))
           }
 
-          <button
-            disabled={page === totalPages}
-            onClick={() => handlePageChange(page + 1)}
-            style={{
-              background: '#fff', border: '1px solid #E2E8F0', borderRadius: 8,
-              padding: '8px 16px', fontSize: 13, fontWeight: 600,
-              color: page === totalPages ? '#CBD5E1' : '#475569',
-              cursor: page === totalPages ? 'not-allowed' : 'pointer',
-            }}
-          >
-            Próximo →
-          </button>
+          <button disabled={page === totalPages} onClick={() => handlePageChange(page + 1)} style={{
+            background: '#fff', border: '1px solid #E2E8F0', borderRadius: 8,
+            padding: '8px 16px', fontSize: 13, fontWeight: 600,
+            color: page === totalPages ? '#CBD5E1' : '#475569',
+            cursor: page === totalPages ? 'not-allowed' : 'pointer',
+          }}>Próximo →</button>
         </div>
       )}
     </div>
