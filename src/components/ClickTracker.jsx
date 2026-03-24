@@ -49,16 +49,17 @@ function classifyEvent(target) {
   let el = target;
   for (let i = 0; i < 5; i++) {
     const t = (el.innerText || el.textContent || '').trim().toLowerCase();
+    const elCls = typeof el.className === 'string' ? el.className : '';
     if (t.includes('inscreva') || t.includes('inscrição') || id.includes('cta-primary')) {
       return 'CTA_PRIMARY';
     }
     if (t.includes('saiba mais') || t.includes('ver mais') || t.includes('saiba')) {
       return 'CTA_SECONDARY';
     }
-    if (el.closest('nav') || el.tagName === 'NAV' || cls.includes('nav')) {
+    if (el.closest('nav') || el.tagName === 'NAV' || elCls.includes('nav')) {
       return 'NAV_CLICK';
     }
-    if (el.closest('[data-card]') || cls.includes('card') || cls.includes('feature')) {
+    if (el.closest('[data-card]') || elCls.includes('card') || elCls.includes('feature')) {
       return 'CARD_CLICK';
     }
     if (!el.parentElement) break;
