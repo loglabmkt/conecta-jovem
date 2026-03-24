@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { metaConversions } from '@/functions/metaConversions';
 import { User, Mail, Phone } from 'lucide-react';
 
 function maskPhone(value) {
@@ -82,6 +83,13 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       return;
     }
 
+    const eventId = 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+
+    // Dispara evento Lead no pixel client-side com deduplicação
+    if (window.fbq) {
+      window.fbq('track', 'Lead', {}, { eventID: eventId });
+    }
+
     await base44.entities.Inscricao.create({
       nome: fields.nome.trim(),
       email: fields.email.toLowerCase().trim(),
@@ -89,6 +97,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       origem,
       created_at: new Date().toISOString(),
     });
+
+    // Envia evento Lead via Conversions API (server-side) com deduplicação
+    metaConversions({
+      event_name: 'Lead',
+      email: fields.email.toLowerCase().trim(),
+      phone: fields.whatsapp,
+      event_id: eventId,
+      source_url: window.location.href,
+    }).catch(() => {});
 
     setLoading(false);
     onSuccess && onSuccess();
