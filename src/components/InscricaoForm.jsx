@@ -1,7 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { metaConversions } from '@/functions/metaConversions';
-import { User, Mail, Phone } from 'lucide-react';
+import { User, Mail, Phone, Cake } from 'lucide-react';
+
+function maskDate(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+function calcularIdade(dataNasc) {
+  const parts = dataNasc.split('/');
+  if (parts.length !== 3 || parts[2].length !== 4) return null;
+  const nascimento = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+  if (isNaN(nascimento.getTime())) return null;
+  const hoje = new Date();
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+  const m = hoje.getMonth() - nascimento.getMonth();
+  if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+  return idade >= 0 && idade <= 120 ? idade : null;
+}
 
 function maskPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -15,7 +34,7 @@ function validateEmail(email) {
 }
 
 export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', onSuccess }) {
-  const [fields, setFields] = useState({ nome: '', email: '', whatsapp: '' });
+  const [fields, setFields] = useState({ nome: '', email: '', whatsapp: '', data_nascimento: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
@@ -53,6 +72,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
   const handleChange = (field, value) => {
     if (field === 'whatsapp') value = maskPhone(value);
+    if (field === 'data_nascimento') value = maskDate(value);
     setFields(prev => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
     setApiError('');
@@ -61,6 +81,10 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const validate = () => {
     const e = {};
     if (!fields.nome.trim() || fields.nome.trim().length < 3) e.nome = 'Informe seu nome completo (mín. 3 caracteres)';
+    if (fields.data_nascimento) {
+      const idade = calcularIdade(fields.data_nascimento);
+      if (idade === null) e.data_nascimento = 'Data inválida. Use o formato DD/MM/AAAA';
+    }
     if (!fields.email.trim() || !validateEmail(fields.email)) e.email = 'Informe um e-mail válido';
     const digits = fields.whatsapp.replace(/\D/g, '');
     if (!digits || digits.length < 10) e.whatsapp = 'Informe um WhatsApp válido';
@@ -85,6 +109,8 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
     const eventId = 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
+    const idade = fields.data_nascimento ? calcularIdade(fields.data_nascimento) : null;
+
     // Dispara evento Lead no pixel client-side com deduplicação
     if (window.fbq) {
       window.fbq('track', 'Lead', {}, { eventID: eventId });
@@ -94,6 +120,8 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       nome: fields.nome.trim(),
       email: fields.email.toLowerCase().trim(),
       whatsapp: fields.whatsapp,
+      data_nascimento: fields.data_nascimento || undefined,
+      idade: idade !== null ? idade : undefined,
       origem,
       created_at: new Date().toISOString(),
     });
@@ -140,6 +168,31 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
           />
         </div>
         {errors.nome && <p className={errorStyle}>{errors.nome}</p>}
+      </div>
+
+      <div className="hf-form-group">
+        <label className="hf-form-label" style={labelSx}>Data de nascimento</label>
+        <div className="relative">
+          <Cake className="hf-form-icon" style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
+          <input
+            type="text"
+            aria-label="Data de nascimento"
+            placeholder="DD/MM/AAAA"
+            value={fields.data_nascimento}
+            onChange={e => handleChange('data_nascimento', e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            className="hf-form-input"
+            style={getInputSx(!!errors.data_nascimento)}
+            maxLength={10}
+          />
+          {fields.data_nascimento && calcularIdade(fields.data_nascimento) !== null && (
+            <span style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', fontSize:12, fontWeight:700, color:'#F97316', background:'#FFF7ED', borderRadius:6, padding:'2px 8px' }}>
+              {calcularIdade(fields.data_nascimento)} anos
+            </span>
+          )}
+        </div>
+        {errors.data_nascimento && <p className={errorStyle}>{errors.data_nascimento}</p>}
       </div>
 
       <div className="hf-form-group">
