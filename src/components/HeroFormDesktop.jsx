@@ -7,49 +7,57 @@ const RESPONSIVE_CSS = `
   .hero-form-card {
     position: relative;
     width: 100%;
-    max-width: 380px;
+    max-width: 340px;
     background: #FFFFFF;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.15);
-    padding: 32px 28px 24px 28px;
-    overflow: hidden;
+    padding: clamp(16px, 2.5vh, 28px) clamp(16px, 2vw, 24px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    max-height: calc(100vh - 160px);
+    box-sizing: border-box;
   }
-  /* 1280–1439px */
+  .hero-form-card::-webkit-scrollbar { display: none; }
+  .hf-badge-wrap { margin-bottom: clamp(6px, 1vh, 12px); }
+  .hf-badge-span { font-size: clamp(9px, 1.1vh, 11px) !important; padding: 4px 12px; }
+  .hf-urgency {
+    padding: clamp(5px, 0.8vh, 8px) clamp(8px, 1vw, 12px) !important;
+    font-size: clamp(10px, 1.2vh, 12px) !important;
+    margin-bottom: clamp(6px, 1vh, 12px) !important;
+  }
+  .hf-title { font-size: clamp(15px, 2.2vh, 22px) !important; margin-bottom: clamp(2px, 0.5vh, 6px) !important; }
+  .hf-subtitle { font-size: clamp(11px, 1.3vh, 13px) !important; margin-bottom: clamp(10px, 1.5vh, 18px) !important; }
+  .hf-footer { font-size: clamp(9px, 1vh, 11px) !important; margin-top: clamp(6px, 1vh, 12px) !important; }
+  .hf-form-group { margin-bottom: clamp(8px, 1.2vh, 14px) !important; }
+  .hf-form-label { font-size: clamp(10px, 1.2vh, 12px) !important; margin-bottom: clamp(3px, 0.5vh, 6px) !important; }
+  .hf-form-input { padding-top: clamp(8px, 1.2vh, 12px) !important; padding-bottom: clamp(8px, 1.2vh, 12px) !important; font-size: clamp(12px, 1.4vh, 14px) !important; }
+  .hf-form-btn { height: clamp(40px, 5.5vh, 50px) !important; font-size: clamp(13px, 1.6vh, 15px) !important; margin-top: clamp(4px, 0.8vh, 10px) !important; }
+  /* 1280–1439px width */
   @media (max-width: 1439px) and (min-width: 1280px) {
-    .hero-form-card {
-      max-width: 340px;
-      padding: 22px 22px 18px 22px;
-      border-radius: 16px;
-    }
-    .hf-badge-wrap { margin-bottom: 10px !important; }
-    .hf-badge-span { font-size: 10px !important; padding: 4px 10px !important; }
-    .hf-urgency { padding: 6px 10px !important; font-size: 11px !important; margin-bottom: 10px !important; }
-    .hf-title { font-size: 18px !important; margin-bottom: 4px !important; }
-    .hf-subtitle { font-size: 12px !important; margin-bottom: 14px !important; }
-    .hf-footer { font-size: 10px !important; margin-top: 10px !important; }
+    .hero-form-card { max-width: 320px; border-radius: 16px; }
   }
-  /* 1024–1279px */
+  /* 1024–1279px width */
   @media (max-width: 1279px) and (min-width: 1024px) {
-    .hero-form-card {
-      max-width: 300px;
-      padding: 18px 18px 14px 18px;
-      border-radius: 14px;
-      max-height: 70vh;
-      overflow-y: auto;
-      scrollbar-width: none;
-    }
-    .hero-form-card::-webkit-scrollbar { display: none; }
-    .hf-badge-wrap { margin-bottom: 8px !important; }
-    .hf-badge-span { font-size: 10px !important; padding: 4px 10px !important; }
-    .hf-urgency { padding: 6px 10px !important; font-size: 11px !important; margin-bottom: 8px !important; }
-    .hf-title { font-size: 16px !important; margin-bottom: 3px !important; }
-    .hf-subtitle { font-size: 11px !important; margin-bottom: 12px !important; }
-    .hf-footer { font-size: 10px !important; margin-top: 8px !important; }
+    .hero-form-card { max-width: 290px; border-radius: 14px; }
   }
   /* 768–1023px: hide inline form, show tablet button */
   @media (max-width: 1023px) and (min-width: 768px) {
     .hero-form-card { display: none !important; }
     .hero-form-tablet-btn { display: flex !important; }
+  }
+  /* Very short viewports */
+  @media (max-height: 700px) {
+    .hf-urgency { display: none !important; }
+    .hf-form-group { margin-bottom: 6px !important; }
+    .hero-form-card { padding: 14px 16px; max-height: calc(100vh - 120px); }
+  }
+  @media (max-height: 800px) {
+    .hero-form-card { max-height: calc(100vh - 140px); }
+  }
+  @media (min-height: 900px) {
+    .hero-form-card { max-height: none; overflow: visible; }
   }
   .hero-form-tablet-btn { display: none; }
   @keyframes urgencyPulse {
@@ -95,7 +103,7 @@ export default function HeroFormDesktop() {
       </button>
 
       {/* Main inline form card */}
-      <div className="mt-20 ml-20 hidden md:block hero-form-card">
+      <div className="hidden md:block hero-form-card">
 
         {/* Accent line top */}
         <div style={{
