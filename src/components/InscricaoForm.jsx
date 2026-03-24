@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { metaConversions } from '@/functions/metaConversions';
+import { enviarEmailInscricao } from '@/functions/enviarEmailInscricao';
 import { User, Mail, Phone, Cake } from 'lucide-react';
 
 function maskDate(value) {
@@ -111,7 +112,22 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
     const eventId = 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
-    const idade = fields.data_nascimento ? calcularIdade(fields.data_nascimento) : null;
+    // Chamar backend: calcular qualificação e enviar e-mail
+    let qualificado = null;
+    let idadeCalculada = fields.data_nascimento ? calcularIdade(fields.data_nascimento) : null;
+    let emailEnviado = false;
+    try {
+      const resp = await enviarEmailInscricao({
+        nome: fields.nome.trim(),
+        email: fields.email.toLowerCase().trim(),
+        data_nascimento: fields.data_nascimento,
+      });
+      qualificado = resp.data?.qualificado ?? null;
+      idadeCalculada = resp.data?.idade ?? idadeCalculada;
+      emailEnviado = resp.data?.emailEnviado ?? false;
+    } catch (e) {
+      console.error('Email func error:', e);
+    }
 
     // Dispara evento Lead no pixel client-side com deduplicação
     if (window.fbq) {
@@ -123,7 +139,9 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       email: fields.email.toLowerCase().trim(),
       whatsapp: fields.whatsapp,
       data_nascimento: fields.data_nascimento,
-      idade: idade !== null ? idade : undefined,
+      idade: idadeCalculada !== null ? idadeCalculada : undefined,
+      qualificado: qualificado !== null ? qualificado : undefined,
+      email_enviado: emailEnviado,
       origem,
       created_at: new Date().toISOString(),
     });
