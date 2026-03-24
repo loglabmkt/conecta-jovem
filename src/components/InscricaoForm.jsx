@@ -122,7 +122,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       nome: fields.nome.trim(),
       email: fields.email.toLowerCase().trim(),
       whatsapp: fields.whatsapp,
-      data_nascimento: fields.data_nascimento || undefined,
+      data_nascimento: fields.data_nascimento,
       idade: idade !== null ? idade : undefined,
       origem,
       created_at: new Date().toISOString(),
