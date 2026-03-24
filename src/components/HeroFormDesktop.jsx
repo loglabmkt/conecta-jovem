@@ -28,7 +28,7 @@ export default function HeroFormDesktop() {
   const displayCount = Math.max(todayCount, 12); // floor at 12 for social proof
 
   return (
-    <div className="mt-10 ml-12 hidden md:block"
+    <div className="mt-20 ml-20 hidden md:block"
 
     style={{
       position: 'relative',
