@@ -20,13 +20,35 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const [apiError, setApiError] = useState('');
 
   const isDark = theme === 'dark';
-
-  const inputBase = isDark
-    ? 'focus:border-orange-400'
-    : 'border border-slate-200 text-gray-900 placeholder-gray-400 focus:border-orange-400';
-
-  const labelStyle = isDark ? '' : 'text-gray-700';
   const errorStyle = 'text-red-400 text-xs mt-1';
+
+  const labelSx = isDark
+    ? { display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }
+    : { display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 };
+
+  const getInputSx = (hasError) => ({
+    width: '100%',
+    background: hasError ? '#FFF5F5' : '#F8FAFC',
+    border: `1.5px solid ${hasError ? '#F87171' : '#E2E8F0'}`,
+    borderRadius: 10,
+    padding: '12px 14px 12px 42px',
+    fontSize: 14,
+    color: '#1E293B',
+    outline: 'none',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+    boxSizing: 'border-box',
+  });
+
+  const handleFocus = (e) => {
+    e.target.style.borderColor = '#F97316';
+    e.target.style.background = '#FFFFFF';
+    e.target.style.boxShadow = '0 0 0 3px rgba(249, 115, 22, 0.12)';
+  };
+  const handleBlur = (e) => {
+    e.target.style.borderColor = '#E2E8F0';
+    e.target.style.background = '#F8FAFC';
+    e.target.style.boxShadow = 'none';
+  };
 
   const handleChange = (field, value) => {
     if (field === 'whatsapp') value = maskPhone(value);
@@ -74,85 +96,55 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
-      {/* Nome */}
       <div>
-        <label
-        style={isDark ? { display:'block', fontSize:12, fontWeight:500, color:'rgba(30,41,59,0.75)', marginBottom:6 } : {}}
-        className={!isDark ? `block text-xs font-medium mb-1.5 ${labelStyle}` : undefined}
-      >Seu nome completo</label>
+        <label style={labelSx}>Seu nome completo</label>
         <div className="relative">
-          <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/40' : 'text-gray-400'}`} />
+          <User style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
           <input
             type="text"
             aria-label="Nome completo"
             placeholder="Ex: João Silva"
             value={fields.nome}
             onChange={e => handleChange('nome', e.target.value)}
-            className={`w-full outline-none transition-all ${!isDark ? inputBase : ''} ${errors.nome ? 'border-red-400' : ''}`}
-            style={isDark ? {
-              background: errors.nome ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.55)',
-              border: errors.nome ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.50)',
-              borderRadius: 10,
-              padding: '11px 14px 11px 40px',
-              fontSize: 14,
-              color: '#1e293b',
-            } : { borderRadius: 10, padding: '11px 14px 11px 40px', fontSize: 14 }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            style={getInputSx(!!errors.nome)}
           />
         </div>
         {errors.nome && <p className={errorStyle}>{errors.nome}</p>}
       </div>
 
-      {/* E-mail */}
       <div>
-        <label
-        style={isDark ? { display:'block', fontSize:12, fontWeight:500, color:'rgba(30,41,59,0.75)', marginBottom:6 } : {}}
-        className={!isDark ? `block text-xs font-medium mb-1.5 ${labelStyle}` : undefined}
-      >Seu melhor e-mail</label>
+        <label style={labelSx}>Seu melhor e-mail</label>
         <div className="relative">
-          <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/40' : 'text-gray-400'}`} />
+          <Mail style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
           <input
             type="email"
             aria-label="E-mail"
             placeholder="exemplo@email.com"
             value={fields.email}
             onChange={e => handleChange('email', e.target.value)}
-            className={`w-full outline-none transition-all ${!isDark ? inputBase : ''} ${errors.email ? 'border-red-400' : ''}`}
-            style={isDark ? {
-              background: 'rgba(255,255,255,0.55)',
-              border: errors.email ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.50)',
-              borderRadius: 10,
-              padding: '11px 14px 11px 40px',
-              fontSize: 14,
-              color: '#1e293b',
-            } : { borderRadius: 10, padding: '11px 14px 11px 40px', fontSize: 14 }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            style={getInputSx(!!errors.email)}
           />
         </div>
         {errors.email && <p className={errorStyle}>{errors.email}</p>}
       </div>
 
-      {/* WhatsApp */}
       <div>
-        <label
-        style={isDark ? { display:'block', fontSize:12, fontWeight:500, color:'rgba(30,41,59,0.75)', marginBottom:6 } : {}}
-        className={!isDark ? `block text-xs font-medium mb-1.5 ${labelStyle}` : undefined}
-      >Seu WhatsApp</label>
+        <label style={labelSx}>Seu WhatsApp</label>
         <div className="relative">
-          <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/40' : 'text-gray-400'}`} />
+          <Phone style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
           <input
             type="tel"
             aria-label="WhatsApp"
             placeholder="(65) 99999-9999"
             value={fields.whatsapp}
             onChange={e => handleChange('whatsapp', e.target.value)}
-            className={`w-full outline-none transition-all ${!isDark ? inputBase : ''} ${errors.whatsapp ? 'border-red-400' : ''}`}
-            style={isDark ? {
-              background: 'rgba(255,255,255,0.55)',
-              border: errors.whatsapp ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.50)',
-              borderRadius: 10,
-              padding: '11px 14px 11px 40px',
-              fontSize: 14,
-              color: '#1e293b',
-            } : { borderRadius: 10, padding: '11px 14px 11px 40px', fontSize: 14 }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            style={getInputSx(!!errors.whatsapp)}
           />
         </div>
         {errors.whatsapp && <p className={errorStyle}>{errors.whatsapp}</p>}
@@ -165,16 +157,24 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       <button
         type="submit"
         disabled={loading}
-        className="w-full h-[52px] rounded-[14px] font-black text-base text-white transition-all duration-200 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
+        className="w-full flex items-center justify-center gap-2 disabled:opacity-70"
         style={{
-        background: 'linear-gradient(135deg, #F97316, #EA580C)',
-        borderRadius: 12,
-        height: 48,
-        fontSize: 15,
-        fontWeight: 700,
-        letterSpacing: '0.01em',
-        boxShadow: '0 4px 16px rgba(249,115,22,0.40)',
-      }}
+          background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
+          color: '#FFFFFF',
+          height: 50,
+          borderRadius: 12,
+          fontSize: 15,
+          fontWeight: 700,
+          border: 'none',
+          cursor: 'pointer',
+          marginTop: 8,
+          boxShadow: '0 4px 20px rgba(249, 115, 22, 0.45)',
+          transition: 'all 0.2s ease',
+          width: '100%',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(249,115,22,0.55)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(249,115,22,0.45)'; }}
+        onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
       >
         {loading ? (
           <>
