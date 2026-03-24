@@ -114,7 +114,10 @@ export default function SliderPrincipal() {
         </AnimatePresence>
 
         {/* Formulário de inscrição sobreposto — desktop only */}
-        <div className="absolute inset-0 hidden md:flex items-center px-12 z-10 pointer-events-none">
+        <div
+          className="absolute inset-0 hidden md:flex items-center z-10 pointer-events-none"
+          style={{ paddingLeft: 'clamp(40px, 5vw, 80px)', paddingTop: 20 }}
+        >
           <div className="pointer-events-auto">
             <HeroFormDesktop />
           </div>

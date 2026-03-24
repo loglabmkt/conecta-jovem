@@ -16,15 +16,17 @@ export default function HeroFormDesktop() {
 
   return (
     <div
-      className="hidden md:block w-full max-w-[420px]"
+      className="hidden md:block"
       style={{
-        background: 'rgba(255,255,255,0.12)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.25)',
-        borderRadius: 24,
-        boxShadow: '0 8px 48px rgba(0,0,0,0.3)',
-        padding: 32,
+        width: '100%',
+        maxWidth: 380,
+        background: 'rgba(255,255,255,0.18)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        border: '1px solid rgba(255,255,255,0.30)',
+        borderRadius: 20,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.2) inset',
+        padding: '28px 28px 24px 28px',
       }}
     >
       {success ? (
@@ -32,27 +34,20 @@ export default function HeroFormDesktop() {
       ) : (
         <>
           {/* Badge */}
-          <div className="mb-4">
-            <span
-              className="inline-block text-xs font-bold text-white uppercase px-3 py-1.5 tracking-wide"
-              style={{ background: '#F97316', borderRadius: 20, fontSize: 12 }}
-            >
-              🎓 Inscrições Abertas — 2ª Edição
-            </span>
-          </div>
+          <div className="mb-3">
 
-          <h2 className="text-white font-black mb-1" style={{ fontSize: 22 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 600, lineHeight: 1.3, color: '#1e293b', marginBottom: 4 }}>
             Garanta sua vaga agora!
           </h2>
-          <p className="mb-4" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
+          <p style={{ fontSize: 12, fontWeight: 400, color: 'rgba(30,41,59,0.65)', letterSpacing: '0.02em', marginBottom: 16 }}>
             Gratuito · Vagas limitadas · Não perca!
           </p>
 
-          <div className="mb-4" style={{ height: 1, background: 'rgba(255,255,255,0.2)' }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.25)', marginBottom: 16 }} />
 
           <InscricaoForm origem="hero_desktop" theme="dark" onSuccess={() => setSuccess(true)} />
 
-          <p className="text-center mt-3" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>
+          <p style={{ textAlign: 'center', marginTop: 12, color: 'rgba(30,41,59,0.45)', fontSize: 11 }}>
             🔒 Seus dados estão seguros. Sem spam.
           </p>
         </>

@@ -22,10 +22,10 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const isDark = theme === 'dark';
 
   const inputBase = isDark
-    ? 'bg-white/10 border border-white/20 text-white placeholder-white/40 focus:border-orange-400'
-    : 'bg-white border border-slate-200 text-gray-900 placeholder-gray-400 focus:border-orange-400';
+    ? 'focus:border-orange-400'
+    : 'border border-slate-200 text-gray-900 placeholder-gray-400 focus:border-orange-400';
 
-  const labelStyle = isDark ? 'text-white/80' : 'text-gray-700';
+  const labelStyle = isDark ? '' : 'text-gray-700';
   const errorStyle = 'text-red-400 text-xs mt-1';
 
   const handleChange = (field, value) => {
@@ -76,7 +76,10 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {/* Nome */}
       <div>
-        <label className={`block text-xs font-semibold mb-1.5 ${labelStyle}`}>Seu nome completo</label>
+        <label
+        style={isDark ? { display:'block', fontSize:12, fontWeight:500, color:'rgba(30,41,59,0.75)', marginBottom:6 } : {}}
+        className={!isDark ? `block text-xs font-medium mb-1.5 ${labelStyle}` : undefined}
+      >Seu nome completo</label>
         <div className="relative">
           <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/40' : 'text-gray-400'}`} />
           <input
@@ -85,7 +88,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
             placeholder="Ex: João Silva"
             value={fields.nome}
             onChange={e => handleChange('nome', e.target.value)}
-            className={`w-full rounded-xl pl-10 pr-4 py-3.5 text-sm outline-none transition-all ${inputBase} ${errors.nome ? 'border-red-400' : ''}`}
+            className={`w-full outline-none transition-all ${!isDark ? inputBase : ''} ${errors.nome ? 'border-red-400' : ''}`}
+            style={isDark ? {
+              background: errors.nome ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.55)',
+              border: errors.nome ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.50)',
+              borderRadius: 10,
+              padding: '11px 14px 11px 40px',
+              fontSize: 14,
+              color: '#1e293b',
+            } : { borderRadius: 10, padding: '11px 14px 11px 40px', fontSize: 14 }}
           />
         </div>
         {errors.nome && <p className={errorStyle}>{errors.nome}</p>}
@@ -93,7 +104,10 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
       {/* E-mail */}
       <div>
-        <label className={`block text-xs font-semibold mb-1.5 ${labelStyle}`}>Seu melhor e-mail</label>
+        <label
+        style={isDark ? { display:'block', fontSize:12, fontWeight:500, color:'rgba(30,41,59,0.75)', marginBottom:6 } : {}}
+        className={!isDark ? `block text-xs font-medium mb-1.5 ${labelStyle}` : undefined}
+      >Seu melhor e-mail</label>
         <div className="relative">
           <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/40' : 'text-gray-400'}`} />
           <input
@@ -102,7 +116,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
             placeholder="exemplo@email.com"
             value={fields.email}
             onChange={e => handleChange('email', e.target.value)}
-            className={`w-full rounded-xl pl-10 pr-4 py-3.5 text-sm outline-none transition-all ${inputBase} ${errors.email ? 'border-red-400' : ''}`}
+            className={`w-full outline-none transition-all ${!isDark ? inputBase : ''} ${errors.email ? 'border-red-400' : ''}`}
+            style={isDark ? {
+              background: 'rgba(255,255,255,0.55)',
+              border: errors.email ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.50)',
+              borderRadius: 10,
+              padding: '11px 14px 11px 40px',
+              fontSize: 14,
+              color: '#1e293b',
+            } : { borderRadius: 10, padding: '11px 14px 11px 40px', fontSize: 14 }}
           />
         </div>
         {errors.email && <p className={errorStyle}>{errors.email}</p>}
@@ -110,7 +132,10 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
       {/* WhatsApp */}
       <div>
-        <label className={`block text-xs font-semibold mb-1.5 ${labelStyle}`}>Seu WhatsApp</label>
+        <label
+        style={isDark ? { display:'block', fontSize:12, fontWeight:500, color:'rgba(30,41,59,0.75)', marginBottom:6 } : {}}
+        className={!isDark ? `block text-xs font-medium mb-1.5 ${labelStyle}` : undefined}
+      >Seu WhatsApp</label>
         <div className="relative">
           <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/40' : 'text-gray-400'}`} />
           <input
@@ -119,7 +144,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
             placeholder="(65) 99999-9999"
             value={fields.whatsapp}
             onChange={e => handleChange('whatsapp', e.target.value)}
-            className={`w-full rounded-xl pl-10 pr-4 py-3.5 text-sm outline-none transition-all ${inputBase} ${errors.whatsapp ? 'border-red-400' : ''}`}
+            className={`w-full outline-none transition-all ${!isDark ? inputBase : ''} ${errors.whatsapp ? 'border-red-400' : ''}`}
+            style={isDark ? {
+              background: 'rgba(255,255,255,0.55)',
+              border: errors.whatsapp ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.50)',
+              borderRadius: 10,
+              padding: '11px 14px 11px 40px',
+              fontSize: 14,
+              color: '#1e293b',
+            } : { borderRadius: 10, padding: '11px 14px 11px 40px', fontSize: 14 }}
           />
         </div>
         {errors.whatsapp && <p className={errorStyle}>{errors.whatsapp}</p>}
@@ -133,7 +166,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
         type="submit"
         disabled={loading}
         className="w-full h-[52px] rounded-[14px] font-black text-base text-white transition-all duration-200 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
-        style={{ background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)' }}
+        style={{
+        background: 'linear-gradient(135deg, #F97316, #EA580C)',
+        borderRadius: 12,
+        height: 48,
+        fontSize: 15,
+        fontWeight: 700,
+        letterSpacing: '0.01em',
+        boxShadow: '0 4px 16px rgba(249,115,22,0.40)',
+      }}
       >
         {loading ? (
           <>
