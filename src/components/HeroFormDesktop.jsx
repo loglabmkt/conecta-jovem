@@ -95,7 +95,7 @@ export default function HeroFormDesktop() {
       </button>
 
       {/* Main inline form card */}
-      <div className="mt-20 ml-20 hidden md:block hero-form-card">
+      <div className="ml-20 hidden md:block hero-form-card" style={{ marginTop: 55 }}>
 
         {/* Accent line top */}
         <div style={{
