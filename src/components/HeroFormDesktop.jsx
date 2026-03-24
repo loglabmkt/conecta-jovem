@@ -64,8 +64,8 @@ function SuccessDesktop() {
       <div style={{ fontSize: 52, marginBottom: 12 }}>✅</div>
       <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>Inscrição realizada!</h3>
       <p style={{ fontSize: 13, color: '#64748B' }}>Em breve entraremos em contato pelo WhatsApp 🎉</p>
-    </div>
-  );
+    </div>);
+
 }
 
 export default function HeroFormDesktop() {
@@ -89,13 +89,13 @@ export default function HeroFormDesktop() {
       <button
         className="hero-form-tablet-btn mt-20 ml-10 items-center justify-center gap-2 text-white font-bold text-base px-8 py-4 rounded-full shadow-xl"
         style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)', border: 'none', cursor: 'pointer' }}
-        onClick={() => window.dispatchEvent(new CustomEvent('open-inscricao', { detail: { origem: 'modal_cta' } }))}
-      >
+        onClick={() => window.dispatchEvent(new CustomEvent('open-inscricao', { detail: { origem: 'modal_cta' } }))}>
+        
         📝 Inscreva-se
       </button>
 
       {/* Main inline form card */}
-      <div className="mt-20 ml-20 hidden md:block hero-form-card">
+      <div className="mt-32 ml-20 hidden md:block hero-form-card">
 
         {/* Accent line top */}
         <div style={{
@@ -107,46 +107,46 @@ export default function HeroFormDesktop() {
         }} />
 
         {success ? <SuccessDesktop /> :
-          <div>
+        <div>
             {/* Badge */}
             <div className="hf-badge-wrap" style={{ marginBottom: 10 }}>
               <span className="hf-badge-span" style={{
-                display: 'inline-block',
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#FFFFFF',
-                textTransform: 'uppercase',
-                letterSpacing: '0.10em',
-                padding: '6px 14px',
-                background: 'linear-gradient(135deg, #F97316, #EA580C)',
-                borderRadius: 20
-              }}>
+              display: 'inline-block',
+              fontSize: 11,
+              fontWeight: 700,
+              color: '#FFFFFF',
+              textTransform: 'uppercase',
+              letterSpacing: '0.10em',
+              padding: '6px 14px',
+              background: 'linear-gradient(135deg, #F97316, #EA580C)',
+              borderRadius: 20
+            }}>
                 🎓 Inscrições Abertas — 2ª Edição
               </span>
             </div>
 
             {/* Urgency bar */}
             <div className="hf-urgency" style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              background: '#FFF7ED',
-              border: '1px solid #FED7AA',
-              borderRadius: 8,
-              padding: '8px 12px',
-              fontSize: 12,
-              color: '#C2410C',
-              fontWeight: 500,
-              marginBottom: 14
-            }}>
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            background: '#FFF7ED',
+            border: '1px solid #FED7AA',
+            borderRadius: 8,
+            padding: '8px 12px',
+            fontSize: 12,
+            color: '#C2410C',
+            fontWeight: 500,
+            marginBottom: 14
+          }}>
               <span style={{
-                width: 8, height: 8,
-                background: '#22C55E',
-                borderRadius: '50%',
-                flexShrink: 0,
-                animation: 'urgencyPulse 1.5s infinite',
-                display: 'inline-block'
-              }} />
+              width: 8, height: 8,
+              background: '#22C55E',
+              borderRadius: '50%',
+              flexShrink: 0,
+              animation: 'urgencyPulse 1.5s infinite',
+              display: 'inline-block'
+            }} />
               {displayCount} jovens já se inscreveram hoje
             </div>
 
@@ -166,6 +166,6 @@ export default function HeroFormDesktop() {
           </div>
         }
       </div>
-    </>
-  );
+    </>);
+
 }
