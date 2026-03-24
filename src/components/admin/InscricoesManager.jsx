@@ -155,6 +155,11 @@ function InscricaoRow({ inscricao, onToggleContatado }) {
           <span style={{ fontSize: 12, color: '#64748B', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Phone style={{ width: 11, height: 11 }} /> {inscricao.whatsapp}
           </span>
+          {inscricao.data_nascimento && (
+            <span style={{ fontSize: 12, color: '#64748B', display: 'flex', alignItems: 'center', gap: 4 }}>
+              🎂 {inscricao.data_nascimento}{inscricao.idade != null ? ` · ${inscricao.idade} anos` : ''}
+            </span>
+          )}
         </div>
       </div>
 
