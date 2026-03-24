@@ -96,7 +96,7 @@ export default function InscricaoModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-50 flex items-end justify-center p-4 pb-10 md:items-center"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: 'rgba(0,0,0,0.75)' }}
           >
             <motion.div
@@ -105,7 +105,7 @@ export default function InscricaoModal() {
               exit={{ opacity: 0, y: 60, scale: 0.95 }}
               transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
               onClick={e => e.stopPropagation()}
-              className="relative w-full max-w-[340px] bg-white rounded-2xl overflow-hidden shadow-2xl"
+              className="relative w-full max-w-[340px] bg-white rounded-2xl overflow-hidden shadow-2xl mt-[30px] md:mt-0"
               style={{ maxHeight: '90vh', overflowY: 'auto' }}
             >
               {/* Faixa colorida topo */}
