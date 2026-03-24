@@ -29,7 +29,7 @@ export default function BackToTopButton() {
   }, []);
 
   return (
-    <div className="md:hidden fixed bottom-6 right-6 z-[1000]">
+    <div className="hidden md:block fixed bottom-6 right-6 z-[1000]">
       <AnimatePresence>
         {isVisible && (
           <motion.div
