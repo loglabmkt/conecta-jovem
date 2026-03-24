@@ -94,10 +94,8 @@ export default function MobileHeroSlider() {
 
       {/* CTA sobre a imagem */}
       <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center z-10 px-6">
-        <a
-          href="https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('open-inscricao', { detail: { origem: 'modal_mobile' } }))}
           className="relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-white font-semibold text-base shadow-2xl"
           style={{ background: 'linear-gradient(135deg, #e6ae4d 0%, #d3733e 100%)' }}
         >
@@ -106,7 +104,7 @@ export default function MobileHeroSlider() {
             style={{ background: 'linear-gradient(135deg, #e6ae4d, #d3733e)' }}
           />
           <span className="relative">🚀 Inscreva-se agora</span>
-        </a>
+        </button>
         <p className="mt-2 text-white/70 text-xs font-medium">Gratuito · Vagas limitadas</p>
       </div>
     </div>

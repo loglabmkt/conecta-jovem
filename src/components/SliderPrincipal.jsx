@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import HeroFormDesktop from './HeroFormDesktop';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -111,6 +112,13 @@ export default function SliderPrincipal() {
             />
           </motion.div>
         </AnimatePresence>
+
+        {/* Formulário de inscrição sobreposto — desktop only */}
+        <div className="absolute inset-0 hidden md:flex items-center px-12 z-10 pointer-events-none">
+          <div className="pointer-events-auto">
+            <HeroFormDesktop />
+          </div>
+        </div>
 
         {/* Navigation Arrows - Desktop only */}
         {slides.length > 1 && (

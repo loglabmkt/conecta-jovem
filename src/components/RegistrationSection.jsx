@@ -9,10 +9,7 @@ export default function RegistrationSection() {
   const y = useTransform(scrollY, [3000, 4000], [0, 50]);
 
   const handleLearnMore = () => {
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'PageView', { content_name: 'Ver passo a passo da inscrição' }); // Track click on "Ver passo a passo"
-    }
-    window.open('https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem', '_blank');
+    window.dispatchEvent(new CustomEvent('open-inscricao', { detail: { origem: 'modal_cta' } }));
   };
 
   return (
