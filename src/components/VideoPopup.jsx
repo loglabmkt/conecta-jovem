@@ -6,6 +6,9 @@ export default function VideoPopup() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    // Não mostrar no mobile
+    if (window.innerWidth < 768) return;
+
     // Verificar se o popup já foi mostrado nesta sessão
     const hasSeenPopup = sessionStorage.getItem('video_popup_seen');
     
