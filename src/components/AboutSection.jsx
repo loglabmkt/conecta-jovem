@@ -377,6 +377,12 @@ export default function AboutSection() {
                     <div className="text-center mt-10">
                         <motion.button
                           onClick={() => window.open('https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem', '_blank')}
+                          className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full text-white font-bold text-lg relative overflow-hidden gradient-primary shadow-lg transition-all duration-300 group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-500"
+                          whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(230, 174, 77, 0.5)" }}
+                          whileTap={{ scale: 0.98 }}>
+                          <span>Fazer inscrição agora</span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transition-transform duration-500 transform -translate-x-full group-hover:translate-x-0"></div>
+                        </motion.button>
                     </div>
                   </div>
                 </div>
@@ -407,7 +413,10 @@ export default function AboutSection() {
                     <div className="text-center mt-8">
                         <button
                           onClick={() => window.open('https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem', '_blank')}
-                  </div>
+                          className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full text-white font-bold text-lg gradient-primary shadow-lg">
+                          Fazer inscrição agora
+                        </button>
+                    </div>
                 </div>
               </motion.div>
             }
