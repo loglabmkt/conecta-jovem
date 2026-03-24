@@ -32,9 +32,23 @@ export default function HeroFormDesktop() {
       {success ? (
         <SuccessDesktop />
       ) : (
-        <>
+        <div>
           {/* Badge */}
           <div className="mb-3">
+            <span style={{
+              display: 'inline-block',
+              fontSize: 11,
+              fontWeight: 600,
+              color: '#fff',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              padding: '5px 12px',
+              background: '#F97316',
+              borderRadius: 20,
+            }}>
+              🎓 Inscrições Abertas — 2ª Edição
+            </span>
+          </div>
 
           <h2 style={{ fontSize: 20, fontWeight: 600, lineHeight: 1.3, color: '#1e293b', marginBottom: 4 }}>
             Garanta sua vaga agora!
@@ -50,7 +64,7 @@ export default function HeroFormDesktop() {
           <p style={{ textAlign: 'center', marginTop: 12, color: 'rgba(30,41,59,0.45)', fontSize: 11 }}>
             🔒 Seus dados estão seguros. Sem spam.
           </p>
-        </>
+        </div>
       )}
     </div>
   );
