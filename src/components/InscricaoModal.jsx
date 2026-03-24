@@ -96,7 +96,7 @@ export default function InscricaoModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-end justify-center p-4 pb-10 md:items-center"
             style={{ background: 'rgba(0,0,0,0.75)' }}
           >
             <motion.div
