@@ -95,11 +95,21 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   };
 
   return (
+    <>
+    <style>{`
+      @media (max-width: 1279px) and (min-width: 768px) {
+        .hf-form-label { font-size: 11px !important; margin-bottom: 4px !important; }
+        .hf-form-input { padding: 9px 11px 9px 36px !important; font-size: 13px !important; border-radius: 8px !important; }
+        .hf-form-icon { left: 10px !important; width: 14px !important; height: 14px !important; }
+        .hf-form-btn { height: 42px !important; font-size: 13px !important; border-radius: 10px !important; margin-top: 6px !important; }
+        .hf-form-group { margin-bottom: 10px !important; }
+      }
+    `}</style>
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
-      <div>
-        <label style={labelSx}>Seu nome completo</label>
+      <div className="hf-form-group">
+        <label className="hf-form-label" style={labelSx}>Seu nome completo</label>
         <div className="relative">
-          <User style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
+          <User className="hf-form-icon" style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
           <input
             type="text"
             aria-label="Nome completo"
@@ -108,16 +118,17 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
             onChange={e => handleChange('nome', e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            className="hf-form-input"
             style={getInputSx(!!errors.nome)}
           />
         </div>
         {errors.nome && <p className={errorStyle}>{errors.nome}</p>}
       </div>
 
-      <div>
-        <label style={labelSx}>Seu melhor e-mail</label>
+      <div className="hf-form-group">
+        <label className="hf-form-label" style={labelSx}>Seu melhor e-mail</label>
         <div className="relative">
-          <Mail style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
+          <Mail className="hf-form-icon" style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
           <input
             type="email"
             aria-label="E-mail"
@@ -126,16 +137,17 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
             onChange={e => handleChange('email', e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            className="hf-form-input"
             style={getInputSx(!!errors.email)}
           />
         </div>
         {errors.email && <p className={errorStyle}>{errors.email}</p>}
       </div>
 
-      <div>
-        <label style={labelSx}>Seu WhatsApp</label>
+      <div className="hf-form-group">
+        <label className="hf-form-label" style={labelSx}>Seu WhatsApp</label>
         <div className="relative">
-          <Phone style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
+          <Phone className="hf-form-icon" style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'#94A3B8' }} />
           <input
             type="tel"
             aria-label="WhatsApp"
@@ -144,6 +156,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
             onChange={e => handleChange('whatsapp', e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            className="hf-form-input"
             style={getInputSx(!!errors.whatsapp)}
           />
         </div>
@@ -157,7 +170,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 disabled:opacity-70"
+        className="w-full flex items-center justify-center gap-2 disabled:opacity-70 hf-form-btn"
         style={{
           background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
           color: '#FFFFFF',
@@ -184,5 +197,6 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
         ) : '🚀 Quero me inscrever agora!'}
       </button>
     </form>
+    </>
   );
 }
