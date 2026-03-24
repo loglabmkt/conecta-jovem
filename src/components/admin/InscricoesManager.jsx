@@ -163,6 +163,17 @@ function InscricaoRow({ inscricao, onToggleContatado }) {
         </div>
       </div>
 
+      {/* Qualification badge */}
+      {inscricao.qualificado === true && (
+        <span style={{ background: '#DCFCE7', color: '#166534', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }}>✅ Qualificado</span>
+      )}
+      {inscricao.qualificado === false && (
+        <span style={{ background: '#FEE2E2', color: '#991B1B', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }}>❌ Fora do perfil</span>
+      )}
+      {!inscricao.email_enviado && inscricao.email_enviado !== undefined && (
+        <span title="E-mail não enviado" style={{ fontSize: 14 }}>⚠️</span>
+      )}
+
       {/* Origin badge */}
       <span style={{
         background: origem.bg, color: origem.color,
@@ -231,6 +242,7 @@ function InscricaoRow({ inscricao, onToggleContatado }) {
 export default function InscricoesManager() {
   const [search, setSearch] = useState('');
   const [period, setPeriod] = useState('all');
+  const [qualFilter, setQualFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState('leads');
   const [lastCount, setLastCount] = useState(null);
@@ -288,7 +300,10 @@ export default function InscricoesManager() {
     if (period === 'today') matchPeriod = d && isToday(parseISO(d));
     else if (period === '7d') matchPeriod = d && isThisWeek(parseISO(d), { locale: ptBR });
     else if (period === '30d') { const limit = new Date(); limit.setDate(limit.getDate() - 30); matchPeriod = d && parseISO(d) >= limit; }
-    return matchSearch && matchPeriod;
+    let matchQual = true;
+    if (qualFilter === 'qualified') matchQual = i.qualificado === true;
+    else if (qualFilter === 'unqualified') matchQual = i.qualificado === false;
+    return matchSearch && matchPeriod && matchQual;
   });
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -338,8 +353,8 @@ export default function InscricoesManager() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
         <MetricCard label="Total de Inscrições" value={totalCount} gradient="linear-gradient(135deg, #3B82F6, #1D4ED8)" icon={Users} />
         <MetricCard label="Inscrições Hoje" value={todayCount} gradient="linear-gradient(135deg, #F97316, #EA580C)" icon={Calendar} />
-        <MetricCard label="Esta Semana" value={weekCount} gradient="linear-gradient(135deg, #8B5CF6, #6D28D9)" icon={BarChart2} />
-        <MetricCard label={`Crescimento ${growth >= 0 ? '+' : ''}${growth}%`} value={`${growth >= 0 ? '+' : ''}${growth}%`} gradient="linear-gradient(135deg, #10B981, #059669)" icon={TrendingUp} />
+        <MetricCard label="Leads Qualificados" value={inscricoes.filter(i => i.qualificado === true).length} gradient="linear-gradient(135deg, #10B981, #059669)" icon={TrendingUp} />
+        <MetricCard label="Fora do Perfil" value={inscricoes.filter(i => i.qualificado === false).length} gradient="linear-gradient(135deg, #EF4444, #DC2626)" icon={BarChart2} />
       </div>
 
       {/* Tabs */}
@@ -391,6 +406,19 @@ export default function InscricoesManager() {
               color: '#1E293B', outline: 'none', boxSizing: 'border-box', background: '#F8FAFC',
             }}
           />
+        </div>
+
+        <div style={{ display: 'flex', gap: 4, background: '#F1F5F9', borderRadius: 10, padding: 4 }}>
+          {[['all','Todos'],['qualified','✅ Qualificados'],['unqualified','❌ Fora do perfil']].map(([val, lbl]) => (
+            <button key={val} onClick={() => { setQualFilter(val); setPage(1); }} style={{
+              background: qualFilter === val ? '#fff' : 'transparent',
+              color: qualFilter === val ? '#0F172A' : '#64748B',
+              border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 12,
+              fontWeight: qualFilter === val ? 700 : 500, cursor: 'pointer',
+              boxShadow: qualFilter === val ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+              transition: 'all 0.15s', whiteSpace: 'nowrap',
+            }}>{lbl}</button>
+          ))}
         </div>
 
         <div style={{ display: 'flex', gap: 4, background: '#F1F5F9', borderRadius: 10, padding: 4 }}>
