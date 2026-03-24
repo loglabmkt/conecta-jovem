@@ -81,7 +81,9 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const validate = () => {
     const e = {};
     if (!fields.nome.trim() || fields.nome.trim().length < 3) e.nome = 'Informe seu nome completo (mín. 3 caracteres)';
-    if (fields.data_nascimento) {
+    if (!fields.data_nascimento) {
+      e.data_nascimento = 'Informe sua data de nascimento';
+    } else {
       const idade = calcularIdade(fields.data_nascimento);
       if (idade === null) e.data_nascimento = 'Data inválida. Use o formato DD/MM/AAAA';
     }
