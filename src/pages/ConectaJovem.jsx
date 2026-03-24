@@ -14,6 +14,7 @@ import AdminLogin from '../components/AdminLogin';
 import VideoPopup from '../components/VideoPopup';
 import GaleriaImagens from '../components/GaleriaImagens';
 import ClickTracker from '../components/ClickTracker';
+import InscricaoModal from '../components/InscricaoModal';
 
 export default function ConectaJovem() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -147,6 +148,7 @@ export default function ConectaJovem() {
       </style>
       
       <ClickTracker />
+      <InscricaoModal />
       <div className="min-h-screen">
         {/* Scroll Progress Bar */}
         <ScrollProgressBar />
