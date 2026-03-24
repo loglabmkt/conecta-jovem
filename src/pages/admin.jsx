@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Image, FileText, LogOut, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, Image, FileText, LogOut, Users, BarChart2 } from 'lucide-react';
 import SliderManager from '../components/admin/SliderManager';
 import ConteudoManager from '../components/admin/ConteudoManager';
 import PaginaManager from '../components/admin/PaginaManager';
 import DashboardOverview from '../components/admin/DashboardOverview';
+import InscricoesManager from '../components/admin/InscricoesManager';
 import AnalyticsPanel from '../components/admin/AnalyticsPanel';
 import { createPageUrl } from '@/utils';
 
@@ -15,15 +16,12 @@ export default function admin() {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
-    // Verificar autenticação
     const authenticated = localStorage.getItem('admin_authenticated');
     const user = localStorage.getItem('admin_username');
-    
     if (authenticated === 'true') {
       setIsAuthenticated(true);
       setUsername(user || 'Admin');
     } else {
-      // Redirecionar para login
       window.location.href = createPageUrl('ConectaJovem') + '?admin=true';
     }
   }, []);
@@ -34,7 +32,6 @@ export default function admin() {
     window.location.href = createPageUrl('ConectaJovem');
   };
 
-  // Não renderizar nada até verificar autenticação
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
@@ -49,13 +46,12 @@ export default function admin() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-4 py-8">
-        {/* Header Redesenhado */}
+        {/* Header */}
         <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
           <div className="flex items-center justify-between">
-            {/* Logo + Título */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl p-2 shadow-md">
-                <img 
+                <img
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68c833941e7874dfa03c2a0b/41d3da78c_2c27dee22_PERFIL_04.png"
                   alt="Conecta Jovem"
                   className="h-12 w-12 object-contain"
@@ -66,15 +62,13 @@ export default function admin() {
                 <p className="text-sm text-gray-500 font-medium">Painel de Gerenciamento</p>
               </div>
             </div>
-            
-            {/* User Info + Logout */}
             <div className="flex items-center gap-4">
               <div className="text-right hidden md:block">
                 <p className="text-xs text-gray-500 font-medium">Bem-vindo,</p>
                 <p className="text-sm font-bold text-gray-900">{username}</p>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleLogout}
                 className="flex items-center gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
               >
@@ -87,31 +81,43 @@ export default function admin() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
+            <TabsTrigger value="dashboard" className="flex items-center gap-1 text-xs md:text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="slider" className="flex items-center gap-2">
+            <TabsTrigger value="inscricoes" className="flex items-center gap-1 text-xs md:text-sm">
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">Inscrições</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs md:text-sm">
+              <BarChart2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="slider" className="flex items-center gap-1 text-xs md:text-sm">
               <Image className="w-4 h-4" />
               <span className="hidden sm:inline">Slider</span>
             </TabsTrigger>
-            <TabsTrigger value="conteudo" className="flex items-center gap-2">
+            <TabsTrigger value="conteudo" className="flex items-center gap-1 text-xs md:text-sm">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Conteúdos</span>
             </TabsTrigger>
-            <TabsTrigger value="paginas" className="flex items-center gap-2">
+            <TabsTrigger value="paginas" className="flex items-center gap-1 text-xs md:text-sm">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Páginas</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
             <DashboardOverview />
+          </TabsContent>
+
+          <TabsContent value="inscricoes">
+            <InscricoesManager />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsPanel />
           </TabsContent>
 
           <TabsContent value="slider">
@@ -124,10 +130,6 @@ export default function admin() {
 
           <TabsContent value="paginas">
             <PaginaManager />
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <AnalyticsPanel />
           </TabsContent>
         </Tabs>
       </div>
