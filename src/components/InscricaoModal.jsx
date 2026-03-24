@@ -105,7 +105,7 @@ export default function InscricaoModal() {
               exit={{ opacity: 0, y: 60, scale: 0.95 }}
               transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
               onClick={e => e.stopPropagation()}
-              className="relative w-full max-w-[400px] bg-white rounded-3xl overflow-hidden shadow-2xl"
+              className="relative w-full max-w-[340px] bg-white rounded-2xl overflow-hidden shadow-2xl"
               style={{ maxHeight: '90vh', overflowY: 'auto' }}
             >
               {/* Faixa colorida topo */}
@@ -120,7 +120,7 @@ export default function InscricaoModal() {
                 <X className="w-4 h-4 text-gray-600" />
               </button>
 
-              <div className="px-6 pt-5 pb-7">
+              <div className="px-5 pt-4 pb-5">
                 {success ? (
                   <SuccessMessage onClose={() => { setOpen(false); setSuccess(false); setDismissed(false); }} />
                 ) : (
@@ -131,8 +131,8 @@ export default function InscricaoModal() {
                         🎓 2ª Edição — Inscrições Abertas
                       </span>
                     </div>
-                    <h2 className="text-xl font-black text-gray-900 mb-1">Garanta sua vaga!</h2>
-                    <p className="text-xs text-slate-500 mb-5">Formação gratuita em tecnologia para jovens de Cuiabá</p>
+                    <h2 className="text-base font-bold text-gray-900 mb-1">Garanta sua vaga!</h2>
+                    <p className="text-xs text-slate-500 mb-3">Formação gratuita em tecnologia para jovens de Cuiabá</p>
 
                     <InscricaoForm origem={origem} theme="light" onSuccess={handleSuccess} />
 
