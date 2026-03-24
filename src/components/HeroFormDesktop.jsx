@@ -7,11 +7,11 @@ const RESPONSIVE_CSS = `
   .hero-form-card {
     position: relative;
     width: 100%;
-    max-width: 380px;
+    max-width: 320px;
     background: #FFFFFF;
-    border-radius: 20px;
+    border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.15);
-    padding: 32px 28px 24px 28px;
+    padding: 22px 20px 18px 20px;
     overflow: hidden;
   }
   /* 1280–1439px */
@@ -95,7 +95,7 @@ export default function HeroFormDesktop() {
       </button>
 
       {/* Main inline form card */}
-      <div className="ml-20 hidden md:block hero-form-card" style={{ marginTop: 55 }}>
+      <div className="mt-20 ml-20 hidden md:block hero-form-card">
 
         {/* Accent line top */}
         <div style={{
