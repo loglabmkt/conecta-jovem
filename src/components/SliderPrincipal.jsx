@@ -116,9 +116,9 @@ export default function SliderPrincipal() {
         {/* Formulário de inscrição sobreposto — desktop only */}
         <div
           className="absolute inset-0 hidden md:flex items-center z-10 pointer-events-none"
-          style={{ padding: '0 clamp(24px, 5vw, 80px)', paddingTop: 'clamp(80px, 10vh, 120px)', paddingBottom: 'clamp(24px, 4vh, 60px)', boxSizing: 'border-box' }}
+          style={{ padding: '0 clamp(24px, 5vw, 80px)' }}
         >
-          <div style={{ maxWidth: 1280, width: '100%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 'clamp(16px, 4vw, 60px)', pointerEvents: 'auto' }}>
+          <div style={{ maxWidth: 1280, width: '100%', margin: '0 auto', display: 'flex', alignItems: 'center', paddingTop: 20, pointerEvents: 'auto' }}>
             <HeroFormDesktop />
           </div>
         </div>
