@@ -89,7 +89,7 @@ export default function HeroFormDesktop() {
       <button
         className="hero-form-tablet-btn mt-20 ml-10 items-center justify-center gap-2 text-white font-bold text-base px-8 py-4 rounded-full shadow-xl"
         style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)', border: 'none', cursor: 'pointer' }}
-        onClick={() => window.dispatchEvent(new CustomEvent('open-inscricao', { detail: { origem: 'modal_cta' } }))}>
+        onClick={() => window.open('https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem', '_blank')}>
         
         📝 Inscreva-se
       </button>
