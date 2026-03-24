@@ -15,7 +15,7 @@ export default function HeroFormDesktop() {
   const [success, setSuccess] = useState(false);
 
   return (
-    <div className="mt-40 mr-64 ml-48 hidden md:block"
+    <div className="mt-10 mr-64 ml-32 hidden md:block"
 
     style={{
       width: '100%',
