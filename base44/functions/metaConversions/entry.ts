@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 import { createHash } from 'node:crypto';
 
-const PIXEL_ID = '1526401935381764';
+const PIXEL_ID = '1193535366190752';
 const API_VERSION = 'v19.0';
 
 function sha256(value) {
