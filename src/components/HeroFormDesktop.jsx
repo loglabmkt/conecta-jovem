@@ -7,45 +7,45 @@ function SuccessDesktop() {
       <div className="text-5xl mb-4">✅</div>
       <h3 className="text-xl font-black text-white mb-2">Inscrição realizada!</h3>
       <p className="text-sm text-white/70">Em breve entraremos em contato pelo WhatsApp 🎉</p>
-    </div>
-  );
+    </div>);
+
 }
 
 export default function HeroFormDesktop() {
   const [success, setSuccess] = useState(false);
 
   return (
-    <div
-      className="hidden md:block"
-      style={{
-        width: '100%',
-        maxWidth: 380,
-        background: 'rgba(255,255,255,0.18)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        border: '1px solid rgba(255,255,255,0.30)',
-        borderRadius: 20,
-        boxShadow: '0 4px 24px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.2) inset',
-        padding: '28px 28px 24px 28px',
-      }}
-    >
-      {success ? (
-        <SuccessDesktop />
-      ) : (
-        <div>
+    <div className="mt-40 mr-64 ml-48 hidden md:block"
+
+    style={{
+      width: '100%',
+      maxWidth: 380,
+      background: 'rgba(255,255,255,0.18)',
+      backdropFilter: 'blur(24px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+      border: '1px solid rgba(255,255,255,0.30)',
+      borderRadius: 20,
+      boxShadow: '0 4px 24px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.2) inset',
+      padding: '28px 28px 24px 28px'
+    }}>
+      
+      {success ?
+      <SuccessDesktop /> :
+
+      <div>
           {/* Badge */}
           <div className="mb-3">
             <span style={{
-              display: 'inline-block',
-              fontSize: 11,
-              fontWeight: 600,
-              color: '#fff',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              padding: '5px 12px',
-              background: '#F97316',
-              borderRadius: 20,
-            }}>
+            display: 'inline-block',
+            fontSize: 11,
+            fontWeight: 600,
+            color: '#fff',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            padding: '5px 12px',
+            background: '#F97316',
+            borderRadius: 20
+          }}>
               🎓 Inscrições Abertas — 2ª Edição
             </span>
           </div>
@@ -65,7 +65,7 @@ export default function HeroFormDesktop() {
             🔒 Seus dados estão seguros. Sem spam.
           </p>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
