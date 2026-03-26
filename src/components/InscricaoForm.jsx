@@ -39,7 +39,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(() => !!sessionStorage.getItem('cj_inscrito'));
 
   const isDark = theme === 'dark';
   const errorStyle = 'text-red-400 text-xs mt-1';
@@ -104,10 +104,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
     setLoading(true);
     setApiError('');
 
-    // Verificar duplicata de e-mail
-    const existing = await base44.entities.Inscricao.filter({ email: fields.email.toLowerCase().trim() });
-    if (existing.length > 0) {
-      setApiError('Este e-mail já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
+    // Verificar duplicata de e-mail ou whatsapp
+    const emailLower = fields.email.toLowerCase().trim();
+    const [byEmail, byPhone] = await Promise.all([
+      base44.entities.Inscricao.filter({ email: emailLower }),
+      base44.entities.Inscricao.filter({ whatsapp: fields.whatsapp }),
+    ]);
+    if (byEmail.length > 0 || byPhone.length > 0) {
+      setApiError('Você já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
+      sessionStorage.setItem('cj_inscrito', '1');
       setLoading(false);
       return;
     }
@@ -159,6 +164,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
     setLoading(false);
     setSubmitted(true);
+    sessionStorage.setItem('cj_inscrito', '1');
     onSuccess && onSuccess();
   };
 
