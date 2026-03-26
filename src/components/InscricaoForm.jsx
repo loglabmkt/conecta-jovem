@@ -39,6 +39,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
   const isDark = theme === 'dark';
   const errorStyle = 'text-red-400 text-xs mt-1';
@@ -96,6 +97,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading || submitted) return; // bloqueia duplo envio
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
@@ -156,6 +158,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
     }).catch(() => {});
 
     setLoading(false);
+    setSubmitted(true);
     onSuccess && onSuccess();
   };
 
