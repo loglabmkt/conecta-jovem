@@ -40,7 +40,12 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
-  const [submitted, setSubmitted] = useState(() => !!sessionStorage.getItem('cj_inscrito'));
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
+  const [submitted, setSubmitted] = useState(() => {
+    try {
+      return !!localStorage.getItem('cj_inscrito') || !!sessionStorage.getItem('cj_inscrito');
+    } catch { return false; }
+  });
 
   const isDark = theme === 'dark';
   const errorStyle = 'text-red-400 text-xs mt-1';
@@ -98,7 +103,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading || submitted) return; // bloqueia duplo envio
+    if (loading || submitted) return;
+
+    // Rate limiting frontend: 10s cooldown
+    const agora = Date.now();
+    if (agora - lastSubmitTime < 10000) {
+      setApiError('Aguarde alguns segundos antes de tentar novamente.');
+      return;
+    }
+    setLastSubmitTime(agora);
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
@@ -144,7 +157,15 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
     // Se duplicado detectado no servidor
     if (resp2.data?.duplicate) {
-      setApiError('Você já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
+      const campo = resp2.data?.campo;
+      if (campo === 'email') {
+        setErrors(prev => ({ ...prev, email: '⚠️ Este e-mail já está inscrito! Se precisar de ajuda, fale conosco no WhatsApp.' }));
+      } else if (campo === 'whatsapp') {
+        setErrors(prev => ({ ...prev, whatsapp: '⚠️ Este WhatsApp já está inscrito! Se precisar de ajuda, fale conosco no WhatsApp.' }));
+      } else {
+        setApiError('Você já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
+      }
+      try { localStorage.setItem('cj_inscrito', JSON.stringify({ timestamp: Date.now() })); } catch {}
       sessionStorage.setItem('cj_inscrito', '1');
       setLoading(false);
       return;
@@ -161,6 +182,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
 
     setLoading(false);
     setSubmitted(true);
+    try { localStorage.setItem('cj_inscrito', JSON.stringify({ email: fields.email, timestamp: Date.now() })); } catch {}
     sessionStorage.setItem('cj_inscrito', '1');
     onSuccess && onSuccess();
   };
