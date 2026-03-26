@@ -137,9 +137,20 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       console.error('Email func error:', e);
     }
 
-    // Dispara evento Lead no pixel client-side com deduplicação
-    if (window.fbq) {
-      window.fbq('track', 'Lead', {}, { eventID: eventId });
+    // Dispara evento Lead no pixel client-side (independente do formulário)
+    let eventId = null;
+    try {
+      if (typeof window.fbq === 'function') {
+        eventId = crypto.randomUUID();
+        window.fbq('track', 'Lead', {
+          content_name: 'Inscricao Conecta Jovem',
+          value: 0,
+          currency: 'BRL'
+        }, { eventID: eventId });
+      }
+    } catch (pixelError) {
+      console.warn('[PIXEL] Falhou, continuando sem tracking:', pixelError);
+      eventId = null;
     }
 
     // Criar inscrição via backend (com deduplicação server-side)
