@@ -154,20 +154,40 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
     }
 
     // Criar inscrição via backend (com deduplicação server-side)
-    const resp2 = await criarInscricao({
-      nome: fields.nome.trim(),
-      email: emailLower,
-      whatsapp: fields.whatsapp,
-      data_nascimento: fields.data_nascimento,
-      idade: idadeCalculada !== null ? idadeCalculada : undefined,
-      qualificado: qualificado !== null ? qualificado : undefined,
-      email_enviado: emailEnviado,
-      origem,
-      created_at: new Date().toISOString(),
-    });
+    let resp2;
+    try {
+      resp2 = await criarInscricao({
+        nome: fields.nome.trim(),
+        email: emailLower,
+        whatsapp: fields.whatsapp,
+        data_nascimento: fields.data_nascimento,
+        idade: idadeCalculada !== null ? idadeCalculada : undefined,
+        qualificado: qualificado !== null ? qualificado : undefined,
+        email_enviado: emailEnviado,
+        origem,
+        created_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      // Backend retornou 4xx/5xx — extrair dados da resposta de erro
+      const errData = err?.response?.data || err?.data || {};
+      if (errData?.duplicate) {
+        const campo = errData?.campo;
+        if (campo === 'email') {
+          setErrors(prev => ({ ...prev, email: '⚠️ Este e-mail já está inscrito! Se precisar de ajuda, fale conosco no WhatsApp.' }));
+        } else if (campo === 'whatsapp') {
+          setErrors(prev => ({ ...prev, whatsapp: '⚠️ Este WhatsApp já está inscrito! Se precisar de ajuda, fale conosco no WhatsApp.' }));
+        } else {
+          setApiError('Você já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
+        }
+      } else {
+        setApiError('Erro ao processar inscrição. Tente novamente.');
+      }
+      setLoading(false);
+      return;
+    }
 
-    // Se duplicado detectado no servidor
-    if (resp2.data?.duplicate) {
+    // Se duplicado detectado via resposta 2xx (fallback)
+    if (resp2?.data?.duplicate) {
       const campo = resp2.data?.campo;
       if (campo === 'email') {
         setErrors(prev => ({ ...prev, email: '⚠️ Este e-mail já está inscrito! Se precisar de ajuda, fale conosco no WhatsApp.' }));
@@ -176,20 +196,9 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       } else {
         setApiError('Você já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
       }
-      try { localStorage.setItem('cj_inscrito', JSON.stringify({ timestamp: Date.now() })); } catch {}
-      sessionStorage.setItem('cj_inscrito', '1');
       setLoading(false);
       return;
     }
-
-    // Envia evento Lead via Conversions API (server-side) com deduplicação
-    metaConversions({
-      event_name: 'Lead',
-      email: fields.email.toLowerCase().trim(),
-      phone: fields.whatsapp,
-      event_id: eventId,
-      source_url: window.location.href,
-    }).catch(() => {});
 
     setLoading(false);
     setSubmitted(true);
