@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { criarInscricao } from '@/functions/criarInscricao';
 import { metaConversions } from '@/functions/metaConversions';
 import { enviarEmailInscricao } from '@/functions/enviarEmailInscricao';
 import { User, Mail, Phone, Cake } from 'lucide-react';
@@ -104,20 +105,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
     setLoading(true);
     setApiError('');
 
-    // Verificar duplicata de e-mail ou whatsapp
     const emailLower = fields.email.toLowerCase().trim();
-    const [byEmail, byPhone] = await Promise.all([
-      base44.entities.Inscricao.filter({ email: emailLower }),
-      base44.entities.Inscricao.filter({ whatsapp: fields.whatsapp }),
-    ]);
-    if (byEmail.length > 0 || byPhone.length > 0) {
-      setApiError('Você já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
-      sessionStorage.setItem('cj_inscrito', '1');
-      setLoading(false);
-      return;
-    }
-
-    const eventId = 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
     // Chamar backend: calcular qualificação e enviar e-mail
     let qualificado = null;
@@ -141,9 +129,10 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       window.fbq('track', 'Lead', {}, { eventID: eventId });
     }
 
-    await base44.entities.Inscricao.create({
+    // Criar inscrição via backend (com deduplicação server-side)
+    const resp2 = await criarInscricao({
       nome: fields.nome.trim(),
-      email: fields.email.toLowerCase().trim(),
+      email: emailLower,
       whatsapp: fields.whatsapp,
       data_nascimento: fields.data_nascimento,
       idade: idadeCalculada !== null ? idadeCalculada : undefined,
@@ -152,6 +141,14 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       origem,
       created_at: new Date().toISOString(),
     });
+
+    // Se duplicado detectado no servidor
+    if (resp2.data?.duplicate) {
+      setApiError('Você já está inscrito! 🎉 Fique de olho no seu WhatsApp.');
+      sessionStorage.setItem('cj_inscrito', '1');
+      setLoading(false);
+      return;
+    }
 
     // Envia evento Lead via Conversions API (server-side) com deduplicação
     metaConversions({
