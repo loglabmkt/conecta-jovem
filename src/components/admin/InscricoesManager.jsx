@@ -109,6 +109,7 @@ function InscricaoRow({ inscricao, onToggleContatado, onWhatsAppClick }) {
   const [copied, setCopied] = useState(false);
   const [toggling, setToggling] = useState(false);
   const dateStr = formatDate(inscricao.created_at || inscricao.created_date);
+  const origem = ORIGEM_CONFIG[inscricao.origem] || { label: inscricao.origem || '—', bg: '#F1F5F9', color: '#64748B' };
   const wsSentAt = inscricao.whatsapp_enviado_em ? formatDate(inscricao.whatsapp_enviado_em) : null;
 
   const handleCopy = () => {
