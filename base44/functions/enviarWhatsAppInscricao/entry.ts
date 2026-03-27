@@ -95,9 +95,12 @@ Deno.serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'x-system-id': systemId,
-        'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        whatsapp_account_id: Deno.env.get('WHATSAPP_ACCOUNT_ID'),
+        template_sid: Deno.env.get('WHATSAPP_TEMPLATE_SID'),
+        to: numeroFinal,
+      })
     });
     console.log('[WA_STEP4] HTTP Status:', response.status, response.statusText);
   } catch (e) {
