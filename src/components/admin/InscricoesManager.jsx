@@ -276,7 +276,7 @@ export default function InscricoesManager() {
   useEffect(() => {
     if (lastCount !== null && inscricoes.length > lastCount) {
       const newest = inscricoes[0];
-      setToast(`🎉 Nova inscrição! ${newest?.nome || ''} acabou de se inscrever`);
+      setToast({ type: 'success', msg: `🎉 Nova inscrição! ${newest?.nome || ''} acabou de se inscrever` });
       setTimeout(() => setToast(null), 5000);
     }
     setLastCount(inscricoes.length);
