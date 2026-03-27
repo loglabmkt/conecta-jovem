@@ -25,6 +25,7 @@ export default function ConteudoForm({ conteudo, onClose }) {
   const [newCategoria, setNewCategoria] = useState('');
   const [newTag, setNewTag] = useState('');
   const [uploading, setUploading] = useState(false);
+  const submittingRef = React.useRef(false); // guard anti-race-condition
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
@@ -110,7 +111,11 @@ export default function ConteudoForm({ conteudo, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    saveMutation.mutate(formData);
+    if (submittingRef.current || saveMutation.isPending) return;
+    submittingRef.current = true;
+    saveMutation.mutate(formData, {
+      onSettled: () => { submittingRef.current = false; }
+    });
   };
 
   return (
