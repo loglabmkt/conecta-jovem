@@ -58,11 +58,11 @@ Deno.serve(async (req) => {
   let payload;
   try {
     const primeiroNome = (inscricao.nome || '').trim().split(' ')[0];
-    const accountId = Deno.env.get('WHATSAPP_ACCOUNT_ID');
-    const templateSid = Deno.env.get('WHATSAPP_TEMPLATE_SID');
-    const apiUrl = Deno.env.get('WHATSAPP_API_URL');
-    const systemId = Deno.env.get('WHATSAPP_SYSTEM_ID');
-    const apiKey = Deno.env.get('WHATSAPP_API_KEY');
+    const accountId = (Deno.env.get('WHATSAPP_ACCOUNT_ID') || '').trim();
+    const templateSid = (Deno.env.get('WHATSAPP_TEMPLATE_SID') || '').trim();
+    const apiUrl = (Deno.env.get('WHATSAPP_API_URL') || '').trim();
+    const systemId = (Deno.env.get('WHATSAPP_SYSTEM_ID') || '').trim();
+    const apiKey = (Deno.env.get('WHATSAPP_API_KEY') || '').trim();
     console.log('[WA_STEP3] Env vars presentes:', {
       accountId: !!accountId,
       templateSid: !!templateSid,
