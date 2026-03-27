@@ -42,6 +42,14 @@ export default function ConteudoForm({ conteudo, onClose }) {
       if (conteudo) {
         return base44.entities.Conteudo.update(conteudo.id, data);
       } else {
+        // Proteção contra duplicata por slug e título
+        const [bySlug, byTitulo] = await Promise.all([
+          base44.entities.Conteudo.filter({ slug: data.slug }),
+          base44.entities.Conteudo.filter({ titulo: data.titulo.trim() }),
+        ]);
+        if (bySlug.length > 0 || byTitulo.length > 0) {
+          throw new Error('Já existe um conteúdo com este título ou slug. Verifique se o conteúdo já foi publicado.');
+        }
         return base44.entities.Conteudo.create(data);
       }
     },
