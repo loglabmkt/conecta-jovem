@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import WhatsAppConfirmModal from './WhatsAppConfirmModal';
+import { enviarWhatsAppInscricao } from '@/functions/enviarWhatsAppInscricao';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format, parseISO, isToday, isThisWeek, subWeeks, startOfWeek, endOfWeek } from 'date-fns';
@@ -103,11 +105,11 @@ function WhatsAppIcon() {
   );
 }
 
-function InscricaoRow({ inscricao, onToggleContatado }) {
+function InscricaoRow({ inscricao, onToggleContatado, onWhatsAppClick }) {
   const [copied, setCopied] = useState(false);
   const [toggling, setToggling] = useState(false);
-  const origem = ORIGEM_CONFIG[inscricao.origem] || { label: inscricao.origem, bg: '#F1F5F9', color: '#475569' };
   const dateStr = formatDate(inscricao.created_at || inscricao.created_date);
+  const wsSentAt = inscricao.whatsapp_enviado_em ? formatDate(inscricao.whatsapp_enviado_em) : null;
 
   const handleCopy = () => {
     const text = [`Nome: ${inscricao.nome}`, `E-mail: ${inscricao.email}`, `WhatsApp: ${inscricao.whatsapp}`, `Inscrito em: ${dateStr}`].join('\n');
@@ -163,6 +165,17 @@ function InscricaoRow({ inscricao, onToggleContatado }) {
         </div>
       </div>
 
+      {/* WhatsApp badge */}
+      {inscricao.whatsapp_enviado && wsSentAt ? (
+        <span style={{ background: '#DCFCE7', color: '#166534', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }}>
+          ✅ WS Enviado · {wsSentAt}
+        </span>
+      ) : inscricao.qualificado === true ? (
+        <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }}>
+          📤 Msg não enviada
+        </span>
+      ) : null}
+
       {/* Qualification badge */}
       {inscricao.qualificado === true && (
         <span style={{ background: '#DCFCE7', color: '#166534', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }}>✅ Qualificado</span>
@@ -191,16 +204,18 @@ function InscricaoRow({ inscricao, onToggleContatado }) {
       {/* Actions */}
       <div style={{ display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center', flexWrap: 'wrap' }}>
         <button
-          onClick={() => openWhatsApp(inscricao)}
+          onClick={() => onWhatsAppClick(inscricao)}
           style={{
-            background: '#25D366', color: '#fff', border: 'none', borderRadius: 8,
+            background: inscricao.whatsapp_enviado ? '#DCFCE7' : '#25D366',
+            color: inscricao.whatsapp_enviado ? '#166534' : '#fff',
+            border: 'none', borderRadius: 8,
             padding: '7px 14px', fontSize: 12, fontWeight: 700,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
           }}
           onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.08)'}
           onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
         >
-          <WhatsAppIcon /> WhatsApp
+          <WhatsAppIcon /> {inscricao.whatsapp_enviado ? '✅ WS Enviado' : 'WhatsApp'}
         </button>
 
         <button onClick={handleCopy} style={{
@@ -247,6 +262,8 @@ export default function InscricoesManager() {
   const [activeTab, setActiveTab] = useState('leads');
   const [lastCount, setLastCount] = useState(null);
   const [toast, setToast] = useState(null);
+  const [waModa, setWaModa] = useState(null); // inscricao selecionada para modal
+  const [waSending, setWaSending] = useState(false);
   const listRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -268,6 +285,28 @@ export default function InscricoesManager() {
   const handleToggleContatado = async (inscricao) => {
     await base44.entities.Inscricao.update(inscricao.id, { contatado: !inscricao.contatado });
     queryClient.invalidateQueries({ queryKey: ['inscricoes-manager'] });
+  };
+
+  const handleWhatsAppClick = (inscricao) => {
+    setWaModa(inscricao);
+  };
+
+  const handleWhatsAppConfirm = async () => {
+    setWaSending(true);
+    try {
+      const res = await enviarWhatsAppInscricao({ inscricaoId: waModa.id });
+      if (res?.data?.sucesso) {
+        setToast({ type: 'success', msg: `✅ Mensagem enviada para ${waModa.nome}!` });
+        queryClient.invalidateQueries({ queryKey: ['inscricoes-manager'] });
+      } else {
+        setToast({ type: 'error', msg: `❌ Falha ao enviar para ${waModa.nome}. ${res?.data?.erro || 'Tente novamente.'}` });
+      }
+    } catch (e) {
+      setToast({ type: 'error', msg: `❌ Falha ao enviar para ${waModa.nome}. Tente novamente.` });
+    }
+    setWaSending(false);
+    setWaModa(null);
+    setTimeout(() => setToast(null), 5000);
   };
 
   // Metrics
@@ -321,16 +360,26 @@ export default function InscricoesManager() {
   return (
     <div style={{ background: '#F8FAFC', minHeight: '80vh', padding: '4px 0' }}>
 
+      {/* WhatsApp Modal */}
+      <WhatsAppConfirmModal
+        inscricao={waModa}
+        loading={waSending}
+        onConfirm={handleWhatsAppConfirm}
+        onCancel={() => !waSending && setWaModa(null)}
+      />
+
       {/* Toast */}
       {toast && (
         <div style={{
           position: 'fixed', top: 24, right: 24, zIndex: 9999,
-          background: '#F0FDF4', border: '1px solid #86EFAC',
+          background: toast.type === 'success' ? '#F0FDF4' : '#FEE2E2',
+          border: `1px solid ${toast.type === 'success' ? '#86EFAC' : '#FECACA'}`,
           borderRadius: 12, padding: '14px 20px',
-          fontSize: 14, fontWeight: 600, color: '#15803D',
+          fontSize: 14, fontWeight: 600,
+          color: toast.type === 'success' ? '#15803D' : '#DC2626',
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)', maxWidth: 340,
         }}>
-          {toast}
+          {toast.msg}
         </div>
       )}
 
@@ -472,7 +521,7 @@ export default function InscricoesManager() {
           </div>
         ) : (
           paginated.map(i => (
-            <InscricaoRow key={i.id} inscricao={i} onToggleContatado={handleToggleContatado} />
+            <InscricaoRow key={i.id} inscricao={i} onToggleContatado={handleToggleContatado} onWhatsAppClick={handleWhatsAppClick} />
           ))
         )}
       </div>

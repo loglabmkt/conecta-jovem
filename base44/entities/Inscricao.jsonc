@@ -1,0 +1,70 @@
+{
+  "name": "Inscricao",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome completo"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-mail"
+    },
+    "whatsapp": {
+      "type": "string",
+      "description": "WhatsApp com m\u00e1scara"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "description": "Data de nascimento (DD/MM/AAAA)"
+    },
+    "idade": {
+      "type": "integer",
+      "description": "Idade calculada automaticamente"
+    },
+    "qualificado": {
+      "type": "boolean",
+      "description": "True se idade entre 15 e 24 anos"
+    },
+    "email_enviado": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se o e-mail foi enviado com sucesso"
+    },
+    "origem": {
+      "type": "string",
+      "enum": [
+        "hero_desktop",
+        "modal_mobile",
+        "modal_cta",
+        "modal_flutuante"
+      ],
+      "description": "Origem da inscri\u00e7\u00e3o"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "contatado": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indica se o lead j\u00e1 foi contatado"
+    },
+    "whatsapp_enviado": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a mensagem WhatsApp via template foi enviada"
+    },
+    "whatsapp_enviado_em": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp do \u00faltimo envio WhatsApp"
+    }
+  },
+  "required": [
+    "nome",
+    "email",
+    "whatsapp",
+    "data_nascimento"
+  ]
+}
