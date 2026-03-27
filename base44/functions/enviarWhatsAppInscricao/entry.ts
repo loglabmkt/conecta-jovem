@@ -87,9 +87,12 @@ Deno.serve(async (req) => {
   let response;
   try {
     const apiUrl = Deno.env.get('WHATSAPP_API_URL');
-    const systemId = Deno.env.get('WHATSAPP_SYSTEM_ID');
-    const apiKey = Deno.env.get('WHATSAPP_API_KEY');
+    const accountIdValue = Deno.env.get('WHATSAPP_ACCOUNT_ID');
+    const templateSidValue = Deno.env.get('WHATSAPP_TEMPLATE_SID');
     console.log('[WA_STEP4] Iniciando fetch para:', apiUrl);
+    console.log('[WA_STEP4] whatsapp_account_id =', accountIdValue);
+    console.log('[WA_STEP4] template_sid =', templateSidValue);
+    console.log('[WA_STEP4] to =', numeroFinal);
     response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -98,8 +101,8 @@ Deno.serve(async (req) => {
         'Authorization': 'Bearer 312289ec8233ffc7f89686e0925a73dcb8d8df2bfc8001f07d5f95d4b81bcd0e',
       },
       body: JSON.stringify({
-        whatsapp_account_id: Deno.env.get('WHATSAPP_ACCOUNT_ID'),
-        template_sid: Deno.env.get('WHATSAPP_TEMPLATE_SID'),
+        whatsapp_account_id: accountIdValue,
+        template_sid: templateSidValue,
         to: numeroFinal,
       })
     });
