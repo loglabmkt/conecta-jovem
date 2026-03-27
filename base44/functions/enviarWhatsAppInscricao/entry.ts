@@ -94,7 +94,8 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-system-id': systemId,
+        'x-system-id': 'f141105d-2090-4023-9e16-71bea2d3b3d8',
+        'Authorization': 'Bearer 312289ec8233ffc7f89686e0925a73dcb8d8df2bfc8001f07d5f95d4b81bcd0e',
       },
       body: JSON.stringify({
         whatsapp_account_id: Deno.env.get('WHATSAPP_ACCOUNT_ID'),
