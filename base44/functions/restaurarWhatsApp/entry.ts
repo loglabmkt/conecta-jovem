@@ -129,6 +129,17 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Acesso negado.' }, { status: 403 });
   }
 
+  // Busca TODOS os registros corrompidos de uma vez (1 chamada só)
+  const corrompidos = await base44.asServiceRole.entities.Inscricao.filter({ whatsapp: WHATSAPP_CORROMPIDO });
+  console.log(`[INFO] Registros corrompidos encontrados: ${corrompidos.length}`);
+
+  // Indexar por email para lookup rápido
+  const mapaEmail = {};
+  for (const reg of corrompidos) {
+    const emailNorm = (reg.email || '').toLowerCase().trim();
+    mapaEmail[emailNorm] = reg;
+  }
+
   let atualizados = 0;
   let naoEncontrados = [];
   let jaCorrigidos = [];
@@ -136,35 +147,33 @@ Deno.serve(async (req) => {
 
   for (const item of BACKUP) {
     const emailNorm = item.email.toLowerCase().trim();
-    const registros = await base44.asServiceRole.entities.Inscricao.filter({ email: emailNorm });
+    const reg = mapaEmail[emailNorm];
 
-    if (!registros || registros.length === 0) {
+    if (!reg) {
       naoEncontrados.push(emailNorm);
       continue;
     }
 
-    const reg = registros[0];
-
-    if (reg.whatsapp !== WHATSAPP_CORROMPIDO) {
-      jaCorrigidos.push({ email: emailNorm, whatsapp_atual: reg.whatsapp });
-      continue;
+    // Atualizar com delay entre cada chamada
+    try {
+      await base44.asServiceRole.entities.Inscricao.update(reg.id, { whatsapp: item.whatsapp });
+      atualizados++;
+      console.log(`[OK] ${emailNorm} → ${item.whatsapp}`);
+      await new Promise(r => setTimeout(r, 800));
+    } catch (e) {
+      console.error(`[ERRO] ${emailNorm}: ${e.message}`);
+      erros.push({ email: emailNorm, erro: e.message });
     }
-
-    await base44.asServiceRole.entities.Inscricao.update(reg.id, { whatsapp: item.whatsapp });
-    atualizados++;
-    console.log(`[OK] ${emailNorm} → ${item.whatsapp}`);
-    await new Promise(r => setTimeout(r, 600));
   }
 
   return Response.json({
     total_lista: BACKUP.length,
+    corrompidos_no_banco: corrompidos.length,
     atualizados,
     nao_encontrados: naoEncontrados.length,
-    ja_corrigidos: jaCorrigidos.length,
     erros: erros.length,
     detalhes: {
       nao_encontrados: naoEncontrados,
-      ja_corrigidos: jaCorrigidos,
       erros,
     }
   });
