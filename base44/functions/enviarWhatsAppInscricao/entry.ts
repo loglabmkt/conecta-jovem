@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
   // ETAPA 4 — Chamada HTTP para API externa
   let response;
   try {
-    console.log('[WA_STEP4] Iniciando fetch para: http://3.94.244.240:3001/api/whatsapp/messages');
+    console.log('[WA_STEP4] Iniciando fetch para:', 'http://3.94.244.240:3001/api/whatsapp/messages');
     console.log('[WA_STEP4] to =', numeroFinal);
     response = await fetch('http://3.94.244.240:3001/api/whatsapp/messages', {
       method: 'POST',
@@ -103,7 +103,6 @@ Deno.serve(async (req) => {
       })
     });
     console.log('[WA_STEP4] HTTP Status:', response.status, response.statusText);
-  } catch (e) {
     console.error('[WA_STEP4_NETWORK_ERROR]', e.message, e.name, String(e.cause));
     return Response.json({ sucesso: false, step: 'STEP4_NETWORK', erro: e.message, name: e.name, cause: String(e.cause) }, { status: 502 });
   }
