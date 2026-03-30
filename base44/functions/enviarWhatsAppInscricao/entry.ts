@@ -86,23 +86,28 @@ Deno.serve(async (req) => {
   // ETAPA 4 — Chamada HTTP para API externa
   let response;
   try {
-    console.log('[WA_STEP4] Iniciando fetch para:', 'http://3.94.244.240:3001/api/whatsapp/messages');
+    const apiUrl = Deno.env.get('WHATSAPP_API_URL');
+    const accountIdValue = Deno.env.get('WHATSAPP_ACCOUNT_ID');
+    const templateSidValue = Deno.env.get('WHATSAPP_TEMPLATE_SID');
+    console.log('[WA_STEP4] Iniciando fetch para:', apiUrl);
+    console.log('[WA_STEP4] whatsapp_account_id =', accountIdValue);
+    console.log('[WA_STEP4] template_sid =', templateSidValue);
     console.log('[WA_STEP4] to =', numeroFinal);
-    response = await fetch('http://3.94.244.240:3001/api/whatsapp/messages', {
+    response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-system-id': 'f141105d-2090-4023-9e16-71bea2d3b3d8',
-        'Authorization': 'Bearer f3d229842c424848cfeb3239a8eaf3385369a9678b4b3107a324f100e12368eb',
+        'Authorization': 'Bearer 312289ec8233ffc7f89686e0925a73dcb8d8df2bfc8001f07d5f95d4b81bcd0e',
       },
       body: JSON.stringify({
-        whatsapp_account_id: '4c53300b-6879-4370-93cd-4cfa0752693e',
-        template_sid: 'HXce43d376230cc7aada1ceef67d307ace',
+        whatsapp_account_id: accountIdValue,
+        template_sid: templateSidValue,
         to: numeroFinal,
-        content_variables: {}
       })
     });
     console.log('[WA_STEP4] HTTP Status:', response.status, response.statusText);
+  } catch (e) {
     console.error('[WA_STEP4_NETWORK_ERROR]', e.message, e.name, String(e.cause));
     return Response.json({ sucesso: false, step: 'STEP4_NETWORK', erro: e.message, name: e.name, cause: String(e.cause) }, { status: 502 });
   }
