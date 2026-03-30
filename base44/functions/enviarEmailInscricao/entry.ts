@@ -44,7 +44,7 @@ function htmlQualificado(nome) {
     <div style="background:#FFF7ED;border-left:4px solid #F97316;border-radius:8px;padding:16px 20px;margin:24px 0;">
       <p style="font-size:13px;color:#C2410C;font-style:italic;margin:0;">📱 Dica rápida: Grave com o celular em pé, em um lugar claro e sem muito barulho.</p>
     </div>
-    <a href="https://wa.me/5565980830860?text=Ol%C3%A1%20Amanda!%20Vim%20pelo%20Conecta%20Jovem%20e%20quero%20enviar%20meu%20v%C3%ADdeo%20de%20inscri%C3%A7%C3%A3o!"
+    <a href="https://wa.me/556598083086?text=Ol%C3%A1%20Amanda!%20Vim%20pelo%20Conecta%20Jovem%20e%20quero%20enviar%20meu%20v%C3%ADdeo%20de%20inscri%C3%A7%C3%A3o!"
        target="_blank"
        style="background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;text-decoration:none;display:block;text-align:center;padding:16px 32px;border-radius:14px;font-size:16px;font-weight:700;margin:28px 0 8px 0;">
       📹 Envie seu vídeo agora
@@ -72,7 +72,7 @@ function htmlNaoQualificado(nome) {
     </div>
     <p style="font-size:15px;font-weight:600;color:#0F172A;margin:20px 0 8px 0;">Mas você ainda pode ajudar a transformar o futuro de alguém! 💛</p>
     <p style="font-size:14px;color:#374151;margin:0 0 16px 0;">Se você conhece algum jovem da Baixada Cuiabana que tenha entre 15 e 24 anos, encaminhe o nosso site para ele não perder essa chance:</p>
-    <a href="https://meconectei.loglabdigital.com.br/"
+    <a href="https://conectajovem.loglabdigital.com.br"
        target="_blank"
        style="background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;text-decoration:none;display:block;text-align:center;padding:14px 32px;border-radius:14px;font-size:15px;font-weight:700;margin:20px 0;">
       🔗 Compartilhar o Conecta Jovem
