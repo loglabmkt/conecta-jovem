@@ -17,16 +17,16 @@ function htmlRemarketing(nome) {
     <p style="font-size:15px;color:#374151;margin:0 0 16px 0;">Aqui é a Amanda, do Conecta Jovem!</p>
     <p style="font-size:15px;color:#374151;margin:0 0 20px 0;">Continue sua inscrição no Conecta Jovem: envie um vídeo curto de breve apresentação (até 1m30s) no WhatsApp.</p>
     <p style="font-size:14px;font-weight:700;color:#0F172A;margin:0 0 12px 0;">No vídeo, responda apenas:</p>
-    <div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;">
-      <span style="display:inline-block;min-width:24px;height:24px;width:24px;background:#F97316;border-radius:50%;color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:24px;">1</span>
+    <div style="margin-bottom:10px;">
+      <span style="display:inline-block;min-width:24px;height:24px;width:24px;background:#F97316;border-radius:50%;color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:24px;margin-right:10px;">1</span>
       <span style="font-size:14px;color:#374151;">Qual seu nome e idade?</span>
     </div>
-    <div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;">
-      <span style="display:inline-block;min-width:24px;height:24px;width:24px;background:#F97316;border-radius:50%;color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:24px;">2</span>
+    <div style="margin-bottom:10px;">
+      <span style="display:inline-block;min-width:24px;height:24px;width:24px;background:#F97316;border-radius:50%;color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:24px;margin-right:10px;">2</span>
       <span style="font-size:14px;color:#374151;">Com quem você mora?</span>
     </div>
-    <div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;">
-      <span style="display:inline-block;min-width:24px;height:24px;width:24px;background:#F97316;border-radius:50%;color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:24px;">3</span>
+    <div style="margin-bottom:10px;">
+      <span style="display:inline-block;min-width:24px;height:24px;width:24px;background:#F97316;border-radius:50%;color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:24px;margin-right:10px;">3</span>
       <span style="font-size:14px;color:#374151;">Por que você quer participar do programa?</span>
     </div>
     <div style="background:#FFF7ED;border-left:4px solid #F97316;border-radius:8px;padding:14px 18px;margin:20px 0;">
@@ -45,28 +45,32 @@ function htmlRemarketing(nome) {
 </body></html>`;
 }
 
-const LOTE = 10;
-const DELAY_MS = 100;
-
 Deno.serve(async (req) => {
-  const base44 = createClientFromRequest(req);
+  try {
+    const base44 = createClientFromRequest(req);
 
-  const user = await base44.auth.me();
-  if (!user || user.role !== 'admin') {
-    return Response.json({ error: 'Acesso negado.' }, { status: 403 });
-  }
+    const user = await base44.auth.me();
+    if (!user || user.role !== 'admin') {
+      return Response.json({ error: 'Acesso negado.' }, { status: 403 });
+    }
 
-  // Buscar todos qualificados
-  const qualificados = await base44.asServiceRole.entities.Inscricao.filter({ qualificado: true });
-  console.log(`[REMARKETING] Total qualificados: ${qualificados.length}`);
+    // Suporta limite para testes: { limite: 2 }
+    let limite = null;
+    try {
+      const body = await req.json();
+      limite = body?.limite || null;
+    } catch {}
 
-  let enviados = 0;
-  let falhas = 0;
-  const logs = [];
+    const qualificados = await base44.asServiceRole.entities.Inscricao.filter({ qualificado: true });
+    console.log(`[REMARKETING] Total qualificados: ${qualificados.length}, limite: ${limite || 'todos'}`);
 
-  for (let i = 0; i < qualificados.length; i += LOTE) {
-    const lote = qualificados.slice(i, i + LOTE);
-    for (const inscricao of lote) {
+    const lista = limite ? qualificados.slice(0, limite) : qualificados;
+
+    let enviados = 0;
+    let falhas = 0;
+    const erros = [];
+
+    for (const inscricao of lista) {
       try {
         await resend.emails.send({
           from: 'Amanda · Conecta Jovem <noreply@loglabdigital.com.br>',
@@ -75,37 +79,40 @@ Deno.serve(async (req) => {
           html: htmlRemarketing(inscricao.nome),
         });
         enviados++;
-        logs.push({ email: inscricao.email, nome: inscricao.nome, status: 'enviado' });
         console.log(`[OK] ${inscricao.email}`);
       } catch (e) {
         falhas++;
-        logs.push({ email: inscricao.email, nome: inscricao.nome, status: 'falha', erro: e.message });
+        erros.push({ email: inscricao.email, erro: e.message });
         console.error(`[ERRO] ${inscricao.email}: ${e.message}`);
       }
-      await new Promise(r => setTimeout(r, DELAY_MS));
+      // 100ms entre envios para respeitar rate limit do Resend
+      await new Promise(r => setTimeout(r, 100));
     }
-  }
 
-  // Registrar log em lote
-  if (logs.length > 0) {
-    try {
-      await base44.asServiceRole.entities.RemarketingLog.bulkCreate(
-        logs.map(l => ({
-          email: l.email,
-          nome: l.nome,
-          status: l.status,
-          erro: l.erro || null,
+    // Salvar logs
+    if (enviados > 0 || falhas > 0) {
+      try {
+        const logEntries = lista.map((ins, idx) => ({
+          email: ins.email,
+          nome: ins.nome,
+          status: erros.find(e => e.email === ins.email) ? 'falha' : 'enviado',
           created_at: new Date().toISOString(),
-        }))
-      );
-    } catch (e) {
-      console.error('[LOG_ERRO]', e.message);
+        }));
+        await base44.asServiceRole.entities.RemarketingLog.bulkCreate(logEntries);
+      } catch (e) {
+        console.error('[LOG_ERRO]', e.message);
+      }
     }
-  }
 
-  return Response.json({
-    total: qualificados.length,
-    enviados,
-    falhas,
-  });
+    return Response.json({
+      total_qualificados: qualificados.length,
+      processados: lista.length,
+      enviados,
+      falhas,
+      erros,
+    });
+  } catch (error) {
+    console.error('[REMARKETING_FATAL]', error.message);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
 });
