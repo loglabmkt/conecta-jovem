@@ -94,8 +94,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     const user = await base44.auth.me();
-    if (!user || user.role !== 'admin') {
-      return Response.json({ error: 'Acesso negado.' }, { status: 403 });
+    if (!user) {
+      return Response.json({ error: 'Não autenticado.' }, { status: 401 });
     }
 
     let limite = null;

@@ -27,7 +27,7 @@ export default function RemarketingModal({ onClose }) {
       });
       setProgresso('');
     } catch (e) {
-      setResultado({ erro: e.message });
+      setResultado({ erro: e?.response?.data?.error || e?.message || 'Erro ao enviar. Tente novamente.' });
       setProgresso('');
     }
   };
