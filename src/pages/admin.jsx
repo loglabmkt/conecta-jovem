@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Image, FileText, LogOut, Users, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, Image, FileText, LogOut, Users, BarChart2, Award } from 'lucide-react';
 import SliderManager from '../components/admin/SliderManager';
 import ConteudoManager from '../components/admin/ConteudoManager';
 import PaginaManager from '../components/admin/PaginaManager';
 import DashboardOverview from '../components/admin/DashboardOverview';
 import InscricoesManager from '../components/admin/InscricoesManager';
 import AnalyticsPanel from '../components/admin/AnalyticsPanel';
+import CertificadosManager from '../components/admin/CertificadosManager';
 import { createPageUrl } from '@/utils';
 
 export default function admin() {
@@ -81,7 +82,7 @@ export default function admin() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-8">
+          <TabsList className="grid w-full grid-cols-7 mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-1 text-xs md:text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -105,6 +106,10 @@ export default function admin() {
             <TabsTrigger value="paginas" className="flex items-center gap-1 text-xs md:text-sm">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Páginas</span>
+            </TabsTrigger>
+            <TabsTrigger value="certificados" className="flex items-center gap-1 text-xs md:text-sm">
+              <Award className="w-4 h-4" />
+              <span className="hidden sm:inline">Certificados</span>
             </TabsTrigger>
           </TabsList>
 
@@ -130,6 +135,10 @@ export default function admin() {
 
           <TabsContent value="paginas">
             <PaginaManager />
+          </TabsContent>
+
+          <TabsContent value="certificados">
+            <CertificadosManager />
           </TabsContent>
         </Tabs>
       </div>

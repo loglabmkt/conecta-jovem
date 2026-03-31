@@ -1,0 +1,39 @@
+{
+  "name": "CertificadoTemplate",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do template"
+    },
+    "imagem_fundo_url": {
+      "type": "string",
+      "description": "URL da imagem de fundo 1920x1080"
+    },
+    "texto_certificado": {
+      "type": "string",
+      "description": "Texto com tags din\u00e2micas"
+    },
+    "verso_habilitado": {
+      "type": "boolean",
+      "default": false,
+      "description": "Habilitar verso no PDF"
+    },
+    "verso_imagem_url": {
+      "type": "string",
+      "description": "URL da imagem de fundo do verso (opcional)"
+    },
+    "verso_conteudo": {
+      "type": "string",
+      "description": "Conte\u00fado program\u00e1tico do verso"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "nome",
+    "texto_certificado"
+  ]
+}
