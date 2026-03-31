@@ -45,6 +45,50 @@ function htmlRemarketing(nome) {
 </body></html>`;
 }
 
+async function processarEnvios(base44, limite = null) {
+  const qualificados = await base44.asServiceRole.entities.Inscricao.filter({ qualificado: true });
+  console.log(`[REMARKETING_BG] Total qualificados: ${qualificados.length}, limite: ${limite || 'todos'}`);
+
+  const lista = limite ? qualificados.slice(0, limite) : qualificados;
+
+  let enviados = 0;
+  let falhas = 0;
+  const erros = [];
+
+  for (const inscricao of lista) {
+    try {
+      await resend.emails.send({
+        from: 'Amanda · Conecta Jovem <noreply@loglabdigital.com.br>',
+        to: inscricao.email,
+        subject: '📹 Continue sua inscrição no Conecta Jovem!',
+        html: htmlRemarketing(inscricao.nome),
+      });
+      enviados++;
+      console.log(`[OK] ${inscricao.email}`);
+    } catch (e) {
+      falhas++;
+      erros.push({ email: inscricao.email, erro: e.message });
+      console.error(`[ERRO] ${inscricao.email}: ${e.message}`);
+    }
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  // Salvar logs
+  try {
+    const logEntries = lista.map(ins => ({
+      email: ins.email,
+      nome: ins.nome,
+      status: erros.find(e => e.email === ins.email) ? 'falha' : 'enviado',
+      created_at: new Date().toISOString(),
+    }));
+    await base44.asServiceRole.entities.RemarketingLog.bulkCreate(logEntries);
+  } catch (e) {
+    console.error('[LOG_ERRO]', e.message);
+  }
+
+  console.log(`[REMARKETING_BG_DONE] Enviados: ${enviados}, Falhas: ${falhas}`);
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -54,63 +98,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Acesso negado.' }, { status: 403 });
     }
 
-    // Suporta limite para testes: { limite: 2 }
     let limite = null;
     try {
       const body = await req.json();
       limite = body?.limite || null;
     } catch {}
 
-    const qualificados = await base44.asServiceRole.entities.Inscricao.filter({ qualificado: true });
-    console.log(`[REMARKETING] Total qualificados: ${qualificados.length}, limite: ${limite || 'todos'}`);
-
-    const lista = limite ? qualificados.slice(0, limite) : qualificados;
-
-    let enviados = 0;
-    let falhas = 0;
-    const erros = [];
-
-    for (const inscricao of lista) {
-      try {
-        await resend.emails.send({
-          from: 'Amanda · Conecta Jovem <noreply@loglabdigital.com.br>',
-          to: inscricao.email,
-          subject: '📹 Continue sua inscrição no Conecta Jovem!',
-          html: htmlRemarketing(inscricao.nome),
-        });
-        enviados++;
-        console.log(`[OK] ${inscricao.email}`);
-      } catch (e) {
-        falhas++;
-        erros.push({ email: inscricao.email, erro: e.message });
-        console.error(`[ERRO] ${inscricao.email}: ${e.message}`);
-      }
-      // 100ms entre envios para respeitar rate limit do Resend
-      await new Promise(r => setTimeout(r, 100));
-    }
-
-    // Salvar logs
-    if (enviados > 0 || falhas > 0) {
-      try {
-        const logEntries = lista.map((ins, idx) => ({
-          email: ins.email,
-          nome: ins.nome,
-          status: erros.find(e => e.email === ins.email) ? 'falha' : 'enviado',
-          created_at: new Date().toISOString(),
-        }));
-        await base44.asServiceRole.entities.RemarketingLog.bulkCreate(logEntries);
-      } catch (e) {
-        console.error('[LOG_ERRO]', e.message);
-      }
-    }
+    // Fire and forget: responder imediatamente, processar em background
+    processarEnvios(base44, limite).catch(err => {
+      console.error('[REMARKETING_BG_ERROR]', err.message);
+    });
 
     return Response.json({
-      total_qualificados: qualificados.length,
-      processados: lista.length,
-      enviados,
-      falhas,
-      erros,
+      success: true,
+      message: 'Envio iniciado em background. Acompanhe os logs do Resend.',
     });
+
   } catch (error) {
     console.error('[REMARKETING_FATAL]', error.message);
     return Response.json({ error: error.message }, { status: 500 });
