@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import WhatsAppConfirmModal from './WhatsAppConfirmModal';
+import RemarketingModal from './RemarketingModal';
 import { enviarWhatsAppInscricao } from '@/functions/enviarWhatsAppInscricao';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -264,6 +265,7 @@ export default function InscricoesManager() {
   const [lastCount, setLastCount] = useState(null);
   const [toast, setToast] = useState(null);
   const [waModa, setWaModa] = useState(null); // inscricao selecionada para modal
+  const [remarketingOpen, setRemarketingOpen] = useState(false);
   const [waSending, setWaSending] = useState(false);
   const listRef = useRef(null);
   const queryClient = useQueryClient();
@@ -361,6 +363,9 @@ export default function InscricoesManager() {
   return (
     <div style={{ background: '#F8FAFC', minHeight: '80vh', padding: '4px 0' }}>
 
+      {/* Remarketing Modal */}
+      {remarketingOpen && <RemarketingModal onClose={() => setRemarketingOpen(false)} />}
+
       {/* WhatsApp Modal */}
       <WhatsAppConfirmModal
         inscricao={waModa}
@@ -407,35 +412,48 @@ export default function InscricoesManager() {
         <MetricCard label="Fora do Perfil" value={inscricoes.filter(i => i.qualificado === false).length} gradient="linear-gradient(135deg, #EF4444, #DC2626)" icon={BarChart2} />
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 0, marginBottom: 20, background: '#F1F5F9', borderRadius: 12, padding: 4, width: 'fit-content' }}>
-        {[
-          { key: 'leads', label: '📋 Novos Leads', count: naoContatados.length },
-          { key: 'relacionamento', label: '✅ Relacionamento', count: contatados.length },
-        ].map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => { setActiveTab(tab.key); setPage(1); }}
-            style={{
-              background: activeTab === tab.key ? '#fff' : 'transparent',
-              color: activeTab === tab.key ? '#0F172A' : '#64748B',
-              border: 'none', borderRadius: 9, padding: '9px 18px',
-              fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 500,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-              boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-              transition: 'all 0.15s',
-            }}
-          >
-            {tab.label}
-            <span style={{
-              background: activeTab === tab.key ? 'linear-gradient(135deg, #F97316, #EA580C)' : '#CBD5E1',
-              color: '#fff', fontSize: 11, fontWeight: 700,
-              borderRadius: 20, padding: '2px 8px', minWidth: 24, textAlign: 'center',
-            }}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
+      {/* Remarketing Button + Tabs */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 0, background: '#F1F5F9', borderRadius: 12, padding: 4 }}>
+          {[
+            { key: 'leads', label: '📋 Novos Leads', count: naoContatados.length },
+            { key: 'relacionamento', label: '✅ Relacionamento', count: contatados.length },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => { setActiveTab(tab.key); setPage(1); }}
+              style={{
+                background: activeTab === tab.key ? '#fff' : 'transparent',
+                color: activeTab === tab.key ? '#0F172A' : '#64748B',
+                border: 'none', borderRadius: 9, padding: '9px 18px',
+                fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 500,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                transition: 'all 0.15s',
+              }}
+            >
+              {tab.label}
+              <span style={{
+                background: activeTab === tab.key ? 'linear-gradient(135deg, #F97316, #EA580C)' : '#CBD5E1',
+                color: '#fff', fontSize: 11, fontWeight: 700,
+                borderRadius: 20, padding: '2px 8px', minWidth: 24, textAlign: 'center',
+              }}>
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => setRemarketingOpen(true)}
+          style={{
+            background: 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+            color: '#fff', border: 'none', borderRadius: 10,
+            padding: '8px 18px', fontSize: 13, fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          📣 Remarketing
+        </button>
       </div>
 
       {/* Toolbar */}

@@ -1,0 +1,36 @@
+{
+  "name": "RemarketingLog",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "E-mail do destinat\u00e1rio"
+    },
+    "nome": {
+      "type": "string",
+      "description": "Nome do destinat\u00e1rio"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "enviado",
+        "falha"
+      ],
+      "description": "Status do envio"
+    },
+    "erro": {
+      "type": "string",
+      "description": "Mensagem de erro (se houver)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data/hora do envio"
+    }
+  },
+  "required": [
+    "email",
+    "nome",
+    "status"
+  ]
+}
