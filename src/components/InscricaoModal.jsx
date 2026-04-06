@@ -121,8 +121,7 @@ export default function InscricaoModal() {
               </button>
 
               <div className="px-5 pt-4 pb-5">
-                {/* FORMULÁRIO TEMPORARIAMENTE SUBSTITUÍDO POR LINK EXTERNO — REATIVAR QUANDO NECESSÁRIO */}
-                {false ? (
+                {success ? (
                 <SuccessMessage onClose={() => { setOpen(false); setSuccess(false); setDismissed(false); }} />
                 ) : (
                 <>
@@ -132,26 +131,12 @@ export default function InscricaoModal() {
                       🎓 2ª Edição — Inscrições Abertas
                     </span>
                   </div>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: '#111827', marginBottom: 6 }}>Garanta sua vaga!</h2>
-                  <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 20, lineHeight: 1.5 }}>Formação gratuita em tecnologia para jovens de Cuiabá</p>
+                  <h2 className="text-base font-bold text-gray-900 mb-1">Garanta sua vaga!</h2>
+                  <p className="text-xs text-slate-500 mb-3">Formação gratuita em tecnologia para jovens de Cuiabá</p>
 
-                  <a
-                    href="https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      background: 'linear-gradient(135deg, #F97316, #EA580C)',
-                      color: 'white', width: '100%', padding: '16px',
-                      borderRadius: 12, fontSize: 15, fontWeight: 700,
-                      textAlign: 'center', textDecoration: 'none',
-                      display: 'block',
-                      boxShadow: '0 4px 16px rgba(249,115,22,0.4)',
-                    }}
-                  >
-                    🚀 Quero me inscrever agora
-                  </a>
+                  <InscricaoForm origem={origem} theme="light" onSuccess={handleSuccess} />
 
-                  <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', marginTop: 12 }}>🔒 Gratuito · Vagas limitadas</p>
+                  <p className="text-center text-xs text-gray-400 mt-4">🔒 Gratuito · Sem spam · Vagas limitadas</p>
                 </>
                 )}
               </div>
