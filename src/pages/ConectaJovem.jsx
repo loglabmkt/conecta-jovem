@@ -15,6 +15,7 @@ import VideoPopup from '../components/VideoPopup';
 import GaleriaImagens from '../components/GaleriaImagens';
 import ClickTracker from '../components/ClickTracker';
 import InscricaoModal from '../components/InscricaoModal';
+import SecaoConectaAction from '../components/landing/SecaoConectaAction';
 
 export default function ConectaJovem() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -157,6 +158,10 @@ export default function ConectaJovem() {
             <WhyJoinSection />
           </div>
           
+          <div id="conecta-action">
+            <SecaoConectaAction />
+          </div>
+
           <div id="inscricao">
             <RegistrationSection />
           </div>

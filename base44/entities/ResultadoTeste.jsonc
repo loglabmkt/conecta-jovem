@@ -1,0 +1,49 @@
+{
+  "name": "ResultadoTeste",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome completo"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-mail"
+    },
+    "whatsapp": {
+      "type": "string",
+      "description": "WhatsApp"
+    },
+    "respostas": {
+      "type": "array",
+      "description": "Array de {questao_id, valor}"
+    },
+    "perfil_primario": {
+      "type": "string",
+      "description": "Dimens\u00e3o prim\u00e1ria"
+    },
+    "perfil_secundario": {
+      "type": "string",
+      "description": "Dimens\u00e3o secund\u00e1ria"
+    },
+    "scores": {
+      "type": "object",
+      "description": "Pontua\u00e7\u00e3o por dimens\u00e3o (0-100)"
+    },
+    "perfil_chave": {
+      "type": "string",
+      "description": "Chave do perfil vocacional"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "nome",
+    "email",
+    "whatsapp",
+    "perfil_primario",
+    "scores"
+  ]
+}

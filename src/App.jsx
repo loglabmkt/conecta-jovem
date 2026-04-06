@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import CertificadoPublico from './pages/CertificadoPublico';
+import TesteVocacional from './pages/TesteVocacional';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/certificado/:codigo" element={<CertificadoPublico />} />
+      <Route path="/teste-vocacional" element={<TesteVocacional />} />
         <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
