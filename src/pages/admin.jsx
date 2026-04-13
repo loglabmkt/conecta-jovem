@@ -11,7 +11,7 @@ import AnalyticsPanel from '../components/admin/AnalyticsPanel';
 import CertificadosManager from '../components/admin/CertificadosManager';
 import { createPageUrl } from '@/utils';
 
-export default function admin() {
+export default function Admin() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
