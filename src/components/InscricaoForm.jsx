@@ -41,6 +41,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
+  const [honeypot, setHoneypot] = useState('');
   const [submitted, setSubmitted] = useState(() => {
     try {
       return !!localStorage.getItem('cj_inscrito') || !!sessionStorage.getItem('cj_inscrito');
@@ -166,6 +167,7 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
         email_enviado: emailEnviado,
         origem,
         created_at: new Date().toISOString(),
+        _hp: honeypot,
       });
     } catch (err) {
       // Backend retornou 4xx/5xx — extrair dados da resposta de erro
@@ -219,6 +221,17 @@ export default function InscricaoForm({ origem = 'modal_cta', theme = 'dark', on
       }
     `}</style>
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      {/* Honeypot anti-bot: invisível para humanos, preenchido por bots */}
+      <input
+        type="text"
+        name="website"
+        style={{ display: 'none' }}
+        tabIndex={-1}
+        autoComplete="off"
+        value={honeypot}
+        onChange={e => setHoneypot(e.target.value)}
+        aria-hidden="true"
+      />
       <div className="hf-form-group">
         <label className="hf-form-label" style={labelSx}>Seu nome completo</label>
         <div className="relative">
