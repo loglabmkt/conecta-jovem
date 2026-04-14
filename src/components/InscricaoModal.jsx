@@ -13,7 +13,6 @@ export default function InscricaoModal() {
     const alreadyShown = sessionStorage.getItem('inscricao_modal_shown');
     if (window.innerWidth < 768 && !alreadyShown) {
       const t = setTimeout(() => {
-        setOrigem('modal_mobile');
         setOpen(true);
         sessionStorage.setItem('inscricao_modal_shown', '1');
       }, 1500);
@@ -23,7 +22,7 @@ export default function InscricaoModal() {
 
   useEffect(() => {
     // Escuta evento global para abrir modal
-    const handler = () => setOpen(true);
+    const handler = () => { setOpen(true); };
     window.addEventListener('open-inscricao', handler);
     return () => window.removeEventListener('open-inscricao', handler);
   }, []);
