@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import InscricaoForm from './InscricaoForm';
+import React from 'react';
+
+const INHIRE_URL = 'https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem';
+// InscricaoForm preservado mas não renderizado (substituído por link externo)
 
 const RESPONSIVE_CSS = `
   .hero-form-card {
@@ -58,112 +58,70 @@ const RESPONSIVE_CSS = `
   }
 `;
 
-function SuccessDesktop() {
-  return (
-    <div style={{ textAlign: 'center', padding: '32px 0' }}>
-      <div style={{ fontSize: 52, marginBottom: 12 }}>✅</div>
-      <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>Inscrição realizada!</h3>
-      <p style={{ fontSize: 13, color: '#64748B' }}>Em breve entraremos em contato pelo WhatsApp 🎉</p>
-    </div>
-  );
-}
 
 export default function HeroFormDesktop() {
-  const [success, setSuccess] = useState(false);
-
-  const { data: inscricoes = [] } = useQuery({
-    queryKey: ['inscricoes-count-today'],
-    queryFn: () => base44.entities.Inscricao.list('-created_date', 200),
-    refetchInterval: 60000
-  });
-
-  const today = new Date().toDateString();
-  const todayCount = inscricoes.filter((i) => new Date(i.created_date || i.created_at).toDateString() === today).length;
-  const displayCount = Math.max(todayCount, 12);
-
   return (
     <>
       <style>{RESPONSIVE_CSS}</style>
 
       {/* Tablet fallback button (768–1023px) */}
-      <button
+      <a
+        href={INHIRE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="hero-form-tablet-btn mt-20 ml-10 items-center justify-center gap-2 text-white font-bold text-base px-8 py-4 rounded-full shadow-xl"
-        style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)', border: 'none', cursor: 'pointer' }}
-        onClick={() => window.open('https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem', '_blank')}>
+        style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)', textDecoration: 'none' }}>
         📝 Inscreva-se
-      </button>
+      </a>
 
-      {/* Main inline form card */}
-      <div className="mt-32 ml-20 hidden md:block hero-form-card">
+      {/* Main CTA card (substituiu o formulário) */}
+      <div className="mt-32 ml-20 hidden md:block" style={{
+        display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420
+      }}>
+        <span style={{
+          background: '#F97316', color: 'white', borderRadius: 20,
+          padding: '5px 14px', fontSize: 11, fontWeight: 700,
+          letterSpacing: '0.08em', display: 'inline-block', width: 'fit-content'
+        }}>
+          🎓 INSCRIÇÕES ABERTAS — 2ª EDIÇÃO
+        </span>
 
-        {/* Accent line top */}
         <div style={{
-          position: 'absolute',
-          top: 0, left: 32, right: 32,
-          height: 3,
-          background: 'linear-gradient(90deg, #F97316, #3B82F6)',
-          borderRadius: '0 0 4px 4px'
-        }} />
+          background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)',
+          borderRadius: 8, padding: '8px 12px', display: 'flex', alignItems: 'center',
+          gap: 8, fontSize: 12, color: '#dcfce7'
+        }}>
+          <span style={{
+            width: 8, height: 8, background: '#22C55E', borderRadius: '50%',
+            animation: 'urgencyPulse 1.5s infinite', flexShrink: 0, display: 'inline-block'
+          }} />
+          Inscrições abertas · Vagas limitadas
+        </div>
 
-        {success ? <SuccessDesktop /> :
-        <div>
-            {/* Badge */}
-            <div className="hf-badge-wrap" style={{ marginBottom: 10 }}>
-              <span className="hf-badge-span" style={{
-              display: 'inline-block',
-              fontSize: 11,
-              fontWeight: 700,
-              color: '#FFFFFF',
-              textTransform: 'uppercase',
-              letterSpacing: '0.10em',
-              padding: '6px 14px',
-              background: 'linear-gradient(135deg, #F97316, #EA580C)',
-              borderRadius: 20
-            }}>
-                🎓 Inscrições Abertas — 2ª Edição
-              </span>
-            </div>
+        <h2 style={{ color: 'white', fontSize: 28, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>
+          Garanta sua vaga agora!
+        </h2>
 
-            {/* Urgency bar */}
-            <div className="hf-urgency" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            background: '#FFF7ED',
-            border: '1px solid #FED7AA',
-            borderRadius: 8,
-            padding: '8px 12px',
-            fontSize: 12,
-            color: '#C2410C',
-            fontWeight: 500,
-            marginBottom: 14
+        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, margin: 0 }}>
+          Formação gratuita em tecnologia para jovens de 15 a 24 anos de Cuiabá
+        </p>
+
+        <a
+          href={INHIRE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            background: 'linear-gradient(135deg,#F97316,#EA580C)', color: 'white',
+            padding: '18px 40px', borderRadius: 14, fontSize: 17, fontWeight: 700,
+            textDecoration: 'none', display: 'inline-block', textAlign: 'center',
+            boxShadow: '0 4px 20px rgba(249,115,22,0.45)'
           }}>
-              <span style={{
-              width: 8, height: 8,
-              background: '#22C55E',
-              borderRadius: '50%',
-              flexShrink: 0,
-              animation: 'urgencyPulse 1.5s infinite',
-              display: 'inline-block'
-            }} />
-              {displayCount} jovens já se inscreveram hoje
-            </div>
+          🚀 Quero me inscrever agora
+        </a>
 
-            {/* Title */}
-            <h2 className="hf-title" style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', lineHeight: 1.25, marginBottom: 6 }}>
-              Garanta sua vaga agora!
-            </h2>
-            <p className="hf-subtitle" style={{ fontSize: 13, fontWeight: 400, color: '#64748B', marginBottom: 20 }}>
-              Gratuito · Vagas limitadas · Não perca!
-            </p>
-
-            <InscricaoForm origem="hero_desktop" theme="light" onSuccess={() => setSuccess(true)} />
-
-            <p className="hf-footer" style={{ textAlign: 'center', marginTop: 12, color: '#94A3B8', fontSize: 11 }}>
-              🔒 Seus dados estão seguros. Sem spam.
-            </p>
-          </div>
-        }
+        <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>
+          🔒 Gratuito · Sem spam · Vagas limitadas
+        </span>
       </div>
     </>
   );

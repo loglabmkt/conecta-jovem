@@ -1,29 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import InscricaoForm from './InscricaoForm';
-
-function SuccessMessage({ onClose }) {
-  useEffect(() => {
-    const t = setTimeout(onClose, 3000);
-    return () => clearTimeout(t);
-  }, [onClose]);
-
-  return (
-    <div className="text-center py-6 px-2">
-      <div className="text-5xl mb-4">✅</div>
-      <h3 className="text-xl font-black text-gray-900 mb-2">Inscrição realizada!</h3>
-      <p className="text-sm text-gray-500">Em breve entraremos em contato pelo WhatsApp 🎉</p>
-    </div>
-  );
-}
+// InscricaoForm preservado mas não renderizado (substituído por link externo)
+const INHIRE_URL = 'https://loglabdigital.inhire.app/conecta-jovem/vagas/52d79473-4854-4af8-a6e5-b0c9f42d3e99/conecta-jovem';
 
 export default function InscricaoModal() {
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [origem, setOrigem] = useState('modal_cta');
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   useEffect(() => {
     // Auto-abre no mobile após 1.5s
@@ -40,11 +23,7 @@ export default function InscricaoModal() {
 
   useEffect(() => {
     // Escuta evento global para abrir modal
-    const handler = (e) => {
-      setOrigem(e.detail?.origem || 'modal_cta');
-      setSuccess(false);
-      setOpen(true);
-    };
+    const handler = () => setOpen(true);
     window.addEventListener('open-inscricao', handler);
     return () => window.removeEventListener('open-inscricao', handler);
   }, []);
@@ -52,22 +31,6 @@ export default function InscricaoModal() {
   const handleClose = () => {
     setOpen(false);
     setDismissed(true);
-  };
-
-  const handleSuccess = () => {
-    setSuccess(true);
-    setTimeout(() => {
-      setOpen(false);
-      setDismissed(false);
-      setSuccess(false);
-    }, 3200);
-  };
-
-  const handleFloatingClick = () => {
-    setOrigem('modal_flutuante');
-    setSuccess(false);
-    setOpen(true);
-    setDismissed(false);
   };
 
   return (
@@ -121,24 +84,29 @@ export default function InscricaoModal() {
               </button>
 
               <div className="px-5 pt-4 pb-5">
-                {success ? (
-                <SuccessMessage onClose={() => { setOpen(false); setSuccess(false); setDismissed(false); }} />
-                ) : (
-                <>
-                  {/* Badge */}
-                  <div className="mb-3">
-                    <span className="inline-block text-xs font-bold text-white uppercase px-3 py-1 rounded-full tracking-wide" style={{ background: '#F97316' }}>
-                      🎓 2ª Edição — Inscrições Abertas
-                    </span>
-                  </div>
-                  <h2 className="text-base font-bold text-gray-900 mb-1">Garanta sua vaga!</h2>
-                  <p className="text-xs text-slate-500 mb-3">Formação gratuita em tecnologia para jovens de Cuiabá</p>
+                {/* Badge */}
+                <div className="mb-3">
+                  <span className="inline-block text-xs font-bold text-white uppercase px-3 py-1 rounded-full tracking-wide" style={{ background: '#F97316' }}>
+                    🎓 2ª Edição — Inscrições Abertas
+                  </span>
+                </div>
+                <h2 className="text-base font-bold text-gray-900 mb-1">Garanta sua vaga!</h2>
+                <p className="text-xs text-slate-500 mb-4">Formação gratuita em tecnologia para jovens de Cuiabá</p>
 
-                  <InscricaoForm origem={origem} theme="light" onSuccess={handleSuccess} />
+                <a
+                  href={INHIRE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: 'linear-gradient(135deg,#F97316,#EA580C)', color: 'white',
+                    width: '100%', padding: '16px', borderRadius: 12, fontSize: 15,
+                    fontWeight: 700, textAlign: 'center', textDecoration: 'none',
+                    display: 'block', boxShadow: '0 4px 16px rgba(249,115,22,0.4)'
+                  }}>
+                  🚀 Quero me inscrever agora
+                </a>
 
-                  <p className="text-center text-xs text-gray-400 mt-4">🔒 Gratuito · Sem spam · Vagas limitadas</p>
-                </>
-                )}
+                <p className="text-center text-xs text-gray-400 mt-3">🔒 Gratuito · Vagas limitadas</p>
               </div>
             </motion.div>
           </motion.div>
