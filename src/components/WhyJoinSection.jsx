@@ -202,54 +202,7 @@ export default function WhyJoinSection() {
             )}
           </div>
 
-          {/* Desktop animated CTA */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
-            viewport={{ once: true }}
-            className="hidden md:block text-center">
-            
-            <motion.div
-              className="inline-block relative"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}>
-              
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl blur-xl opacity-50"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }} />
-
-              <div className="relative bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl p-8 text-white">
-                <motion.h3
-                  className="text-3xl font-bold mb-4"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}>
-                  
-                  🚀 Sua jornada na tecnologia começa aqui!
-                </motion.h3>
-                <p className="text-xl text-orange-100">
-                  Transforme sua paixão por tecnologia em um futuro cheio de possibilidades
-                </p>
-              </div>
-            </motion.div>
-
-          </motion.div>
-
-          {/* Mobile version without animations */}
-          <div className="md:hidden text-center">
-            <div className="inline-block relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl blur-xl opacity-50" />
-              <div className="bg-gradient-to-r text-white mb-8 p-8 relative from-orange-500 to-yellow-500 rounded-3xl">
-                <h3 className="mb-4 text-base font-bold"> Sua jornada na tecnologia começa aqui!</h3>
-                <p className="text-xl text-orange-100">
-                  Transforme sua paixão por tecnologia em um futuro cheio de possibilidades
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-24"></div>
-          </div>
+          <div className="mb-8 md:mb-16"></div>
         </div>
       </ParallaxSection>
     </>);

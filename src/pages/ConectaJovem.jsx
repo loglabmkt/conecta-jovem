@@ -6,7 +6,6 @@ import AboutSection from '../components/AboutSection';
 import ConteudosSecao from '../components/ConteudosSecao';
 import EligibilitySection from '../components/EligibilitySection';
 import WhyJoinSection from '../components/WhyJoinSection';
-import RegistrationSection from '../components/RegistrationSection';
 import Footer from '../components/Footer';
 import BackToTopButton from '../components/BackToTopButton';
 import CookieConsentBanner from '../components/CookieConsentBanner';
@@ -15,7 +14,6 @@ import VideoPopup from '../components/VideoPopup';
 import GaleriaImagens from '../components/GaleriaImagens';
 import ClickTracker from '../components/ClickTracker';
 import InscricaoModal from '../components/InscricaoModal';
-import SecaoConectaAction from '../components/landing/SecaoConectaAction';
 
 export default function ConectaJovem() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -158,13 +156,7 @@ export default function ConectaJovem() {
             <WhyJoinSection />
           </div>
           
-          <div id="conecta-action">
-            <SecaoConectaAction />
-          </div>
 
-          <div id="inscricao">
-            <RegistrationSection />
-          </div>
         </main>
         
         <Footer />
