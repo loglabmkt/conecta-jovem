@@ -236,8 +236,33 @@ export default function CertificadoTemplateForm({ template, onSalvo, onCancelar 
                 <img src={versoImagemUrl} alt="verso" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.3 }} />
               )}
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a', textAlign: 'center', marginTop: 4, marginBottom: 12 }}>CONTEÚDO PROGRAMÁTICO</p>
-                <p style={{ fontSize: 9, color: '#333', whiteSpace: 'pre-line', lineHeight: 1.5, textAlign: 'center' }}>{versoConteudo || 'Conteúdo aparecerá aqui...'}</p>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a', textAlign: 'center', marginTop: 4, marginBottom: 8 }}>CONTEÚDO PROGRAMÁTICO</p>
+                {versoConteudo ? (
+                  <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse', fontSize: 7 }}>
+                    <thead>
+                      <tr style={{ background: '#F1F5F9' }}>
+                        <th style={{ textAlign: 'left', padding: '3px 6px', color: '#64748B', fontWeight: 600, fontSize: 6 }}>Módulo</th>
+                        <th style={{ textAlign: 'right', padding: '3px 6px', color: '#64748B', fontWeight: 600, fontSize: 6 }}>Total (h)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {versoConteudo.split('\n').map(s => s.trim()).filter(Boolean).map((linha, i, arr) => {
+                        const m = linha.match(/^(.*?)[\s\-\|:•·]+(\d{1,4})\s*[hH]?\s*$/);
+                        const nome = m ? m[1].trim().replace(/[\-\|:•·]+$/, '').trim() : linha;
+                        const horas = m ? m[2] : '';
+                        const isUltima = i === arr.length - 1;
+                        return (
+                          <tr key={i} style={{ borderTop: '0.5px solid #E2E8F0', background: isUltima ? '#F1F5F9' : 'transparent', fontWeight: isUltima ? 700 : 400 }}>
+                            <td style={{ padding: '3px 6px', color: '#1a1a1a' }}>{nome}</td>
+                            <td style={{ padding: '3px 6px', textAlign: 'right', color: '#1a1a1a' }}>{horas}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p style={{ fontSize: 9, color: '#888', textAlign: 'center' }}>Conteúdo aparecerá aqui...</p>
+                )}
               </div>
             </div>
           )}

@@ -156,7 +156,7 @@ Deno.serve(async (req) => {
       page2.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(0.99, 0.99, 0.99) });
     }
 
-    // Conteúdo programático (se habilitado) — escalado para 1920x1080
+    // Conteúdo programático (se habilitado) — renderizado como tabela
     if (template.verso_habilitado && template.verso_conteudo) {
       const titulo = 'CONTEÚDO PROGRAMÁTICO';
       const tituloSize = 36;
@@ -165,17 +165,100 @@ Deno.serve(async (req) => {
         x: (W - tituloW) / 2, y: H - 170, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
       });
 
-      const conteudoSize = 24;
-      const conteudoLineH = 36;
-      const linhasVerso = wrapText(template.verso_conteudo, fontRegular, conteudoSize, W - 280);
-      let yVerso = H - 250;
-      const limiteY = 350; // espaço pro QR Code
-      for (const l of linhasVerso) {
-        if (yVerso < limiteY) break;
-        const lW = fontRegular.widthOfTextAtSize(l, conteudoSize);
-        page2.drawText(l, { x: (W - lW) / 2, y: yVerso, size: conteudoSize, font: fontRegular, color: rgb(0.2, 0.2, 0.2) });
-        yVerso -= conteudoLineH;
+      // Parse das linhas: aceita formatos "Nome - 25H", "Nome - 25h", "Nome | 25", "Nome 25"
+      // Captura o último número da linha como total de horas.
+      const linhasRaw = template.verso_conteudo.split('\n').map(s => s.trim()).filter(Boolean);
+      const itens = linhasRaw.map(linha => {
+        const m = linha.match(/^(.*?)[\s\-\|:•·]+(\d{1,4})\s*[hH]?\s*$/);
+        if (m) return { nome: m[1].trim().replace(/[\-\|:•·]+$/, '').trim(), horas: m[2] };
+        return { nome: linha, horas: '' };
+      });
+
+      // Layout da tabela
+      const tableW = 1100;
+      const tableX = (W - tableW) / 2;
+      const colHorasW = 180;
+      const colNomeW = tableW - colHorasW;
+      const rowH = 44;
+      const cellPadX = 20;
+      const fontSizeRow = 20;
+      const fontSizeHead = 18;
+
+      let yTable = H - 230;
+
+      // Cabeçalho
+      page2.drawRectangle({
+        x: tableX, y: yTable - rowH, width: tableW, height: rowH,
+        color: rgb(0.96, 0.96, 0.97),
+      });
+      page2.drawText('Módulo', {
+        x: tableX + cellPadX, y: yTable - rowH + (rowH - fontSizeHead) / 2 + 4,
+        size: fontSizeHead, font: fontBold, color: rgb(0.4, 0.4, 0.45),
+      });
+      const headHorasW = fontBold.widthOfTextAtSize('Total (h)', fontSizeHead);
+      page2.drawText('Total (h)', {
+        x: tableX + tableW - cellPadX - headHorasW,
+        y: yTable - rowH + (rowH - fontSizeHead) / 2 + 4,
+        size: fontSizeHead, font: fontBold, color: rgb(0.4, 0.4, 0.45),
+      });
+      yTable -= rowH;
+
+      const limiteY = 340; // reserva espaço pro QR e logos
+      for (let i = 0; i < itens.length; i++) {
+        if (yTable - rowH < limiteY) break;
+        const { nome, horas } = itens[i];
+        const isUltima = i === itens.length - 1;
+
+        if (isUltima) {
+          // Linha "Total" com fundo cinza claro
+          page2.drawRectangle({
+            x: tableX, y: yTable - rowH, width: tableW, height: rowH,
+            color: rgb(0.96, 0.96, 0.97),
+          });
+        }
+
+        // Linha divisória superior
+        page2.drawLine({
+          start: { x: tableX, y: yTable },
+          end: { x: tableX + tableW, y: yTable },
+          thickness: 0.5, color: rgb(0.85, 0.85, 0.88),
+        });
+
+        // Nome (truncar se passar)
+        let nomeTxt = nome;
+        const maxNomeW = colNomeW - cellPadX * 2;
+        const fNome = isUltima ? fontBold : fontRegular;
+        while (fNome.widthOfTextAtSize(nomeTxt, fontSizeRow) > maxNomeW && nomeTxt.length > 1) {
+          nomeTxt = nomeTxt.slice(0, -1);
+        }
+        if (nomeTxt !== nome) nomeTxt = nomeTxt.slice(0, -1) + '…';
+
+        page2.drawText(nomeTxt, {
+          x: tableX + cellPadX,
+          y: yTable - rowH + (rowH - fontSizeRow) / 2 + 4,
+          size: fontSizeRow, font: fNome, color: rgb(0.15, 0.15, 0.18),
+        });
+
+        // Horas (alinhadas à direita)
+        if (horas) {
+          const fHoras = isUltima ? fontBold : fontRegular;
+          const horasW = fHoras.widthOfTextAtSize(horas, fontSizeRow);
+          page2.drawText(horas, {
+            x: tableX + tableW - cellPadX - horasW,
+            y: yTable - rowH + (rowH - fontSizeRow) / 2 + 4,
+            size: fontSizeRow, font: fHoras, color: rgb(0.15, 0.15, 0.18),
+          });
+        }
+
+        yTable -= rowH;
       }
+
+      // Linha final
+      page2.drawLine({
+        start: { x: tableX, y: yTable },
+        end: { x: tableX + tableW, y: yTable },
+        thickness: 0.5, color: rgb(0.85, 0.85, 0.88),
+      });
     }
 
     // QR Code à direita, dentro da área branca, mais alto para caber o link abaixo
