@@ -1,36 +1,35 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.27';
-import { jsPDF } from 'npm:jspdf@2.5.1';
+import { jsPDF } from 'npm:jspdf@2.5.2';
 import QRCode from 'npm:qrcode@1.5.4';
-import { encodeBase64 } from 'jsr:@std/encoding@1.0.5/base64';
 
 function gerarCodigo() {
-  return 'CJ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+  return 'CJ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
-// Conversão segura: usa encodeBase64 do Deno std (não corrompe bytes)
+// Conversão segura de ArrayBuffer para base64 (em chunks pra evitar stack overflow)
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
+}
+
 async function urlToBase64(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Falha ao baixar imagem: ${res.status}`);
   const buf = await res.arrayBuffer();
-  return encodeBase64(new Uint8Array(buf));
+  return arrayBufferToBase64(buf);
 }
 
-function detectarFormato(url, contentType) {
+function detectarFormatoImagem(url) {
   const u = (url || '').toLowerCase();
-  const ct = (contentType || '').toLowerCase();
-  if (u.endsWith('.png') || ct.includes('png')) return 'PNG';
-  if (u.endsWith('.webp') || ct.includes('webp')) return 'WEBP';
+  if (u.includes('.png')) return 'PNG';
+  if (u.includes('.webp')) return 'WEBP';
   return 'JPEG';
-}
-
-async function carregarImagem(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Falha ao baixar: ${res.status}`);
-  const contentType = res.headers.get('content-type') || '';
-  const buf = await res.arrayBuffer();
-  const base64 = encodeBase64(new Uint8Array(buf));
-  const formato = detectarFormato(url, contentType);
-  return { base64, formato };
 }
 
 Deno.serve(async (req) => {
@@ -42,6 +41,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Campos obrigatórios ausentes.' }, { status: 400 });
     }
 
+    // Buscar template
     const templates = await base44.asServiceRole.entities.CertificadoTemplate.filter({ id: template_id });
     const template = templates?.[0];
     if (!template) {
@@ -51,59 +51,59 @@ Deno.serve(async (req) => {
     const codigo = gerarCodigo();
     const validacaoUrl = `https://conectajovem.loglabdigital.com.br/certificado/${codigo}`;
 
-    // QR Code (será usado apenas no verso)
+    // Gerar QR Code como PNG base64
     const qrDataUrl = await QRCode.toDataURL(validacaoUrl, { width: 200, margin: 1 });
     const qrBase64 = qrDataUrl.split(',')[1];
 
+    // Texto com substituição de tags
     const textoFinal = (template.texto_certificado || '')
       .replace(/\{full_name\}/g, nome_aluno)
       .replace(/\{course_name\}/g, nome_curso)
       .replace(/\{completion_date\}/g, data_conclusao);
 
+    // Criar PDF A4 landscape (297x210mm)
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
     const W = 297;
     const H = 210;
 
-    // ─── Página 1 — FRENTE ────────────────────────────────────────────────
+    // ==================== PÁGINA 1 — FRENTE ====================
     if (template.imagem_fundo_url) {
       try {
-        const { base64, formato } = await carregarImagem(template.imagem_fundo_url);
-        doc.addImage(base64, formato, 0, 0, W, H, undefined, 'FAST');
+        const imgBase64 = await urlToBase64(template.imagem_fundo_url);
+        const ext = detectarFormatoImagem(template.imagem_fundo_url);
+        doc.addImage(imgBase64, ext, 0, 0, W, H, undefined, 'FAST');
       } catch (e) {
         console.error('[PDF] Erro fundo frente:', e.message);
-        doc.setFillColor(255, 255, 255);
-        doc.rect(0, 0, W, H, 'F');
       }
     } else {
       doc.setFillColor(255, 255, 255);
       doc.rect(0, 0, W, H, 'F');
     }
 
-    // Texto centralizado
-    const linhas = textoFinal.split('\n');
+    // Texto centralizado com quebras automáticas
+    const linhasTexto = textoFinal.split('\n').flatMap(l => doc.splitTextToSize(l, W - 60));
     const lineHeight = 9;
-    const startY = H / 2 - (linhas.length * lineHeight) / 2;
+    const startY = H / 2 - (linhasTexto.length * lineHeight) / 2;
 
-    linhas.forEach((linha, idx) => {
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 0);
+
+    linhasTexto.forEach((linha, idx) => {
       const yPos = startY + idx * lineHeight;
-      doc.setFontSize(20);
-      doc.setTextColor(0, 0, 0);
-
       if (linha.includes(nome_aluno)) {
         const partes = linha.split(nome_aluno);
         const antes = partes[0];
-        const depois = partes[1] || '';
+        const depois = partes.slice(1).join(nome_aluno);
+
         doc.setFont('helvetica', 'normal');
         const larguraAntes = doc.getTextWidth(antes);
-        const larguraNome = (() => {
-          doc.setFont('helvetica', 'bold');
-          const w = doc.getTextWidth(nome_aluno);
-          doc.setFont('helvetica', 'normal');
-          return w;
-        })();
+        doc.setFont('helvetica', 'bold');
+        const larguraNome = doc.getTextWidth(nome_aluno);
+        doc.setFont('helvetica', 'normal');
         const larguraDepois = doc.getTextWidth(depois);
+
         const totalW = larguraAntes + larguraNome + larguraDepois;
-        let x = (W - totalW) / 2;
+        const x = (W - totalW) / 2;
 
         doc.text(antes, x, yPos);
         doc.setFont('helvetica', 'bold');
@@ -116,102 +116,68 @@ Deno.serve(async (req) => {
       }
     });
 
-    // ─── Página 2 — VERSO (com QR Code) ──────────────────────────────────
-    const temVerso = template.verso_habilitado;
-    if (temVerso) {
-      doc.addPage();
+    // ==================== PÁGINA 2 — VERSO (com QR Code) ====================
+    doc.addPage();
 
-      if (template.verso_imagem_url) {
-        try {
-          const { base64, formato } = await carregarImagem(template.verso_imagem_url);
-          doc.addImage(base64, formato, 0, 0, W, H, undefined, 'FAST');
-        } catch (e) {
-          console.error('[PDF] Erro fundo verso:', e.message);
-          doc.setFillColor(250, 250, 250);
-          doc.rect(0, 0, W, H, 'F');
-        }
-      } else {
+    // Fundo do verso
+    if (template.verso_habilitado && template.verso_imagem_url) {
+      try {
+        const versoBase64 = await urlToBase64(template.verso_imagem_url);
+        const ext = detectarFormatoImagem(template.verso_imagem_url);
+        doc.addImage(versoBase64, ext, 0, 0, W, H, undefined, 'FAST');
+      } catch (e) {
+        console.error('[PDF] Erro fundo verso:', e.message);
         doc.setFillColor(250, 250, 250);
         doc.rect(0, 0, W, H, 'F');
       }
-
-      // Título
-      doc.setFontSize(22);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(26, 26, 26);
-      doc.text('CONTEÚDO PROGRAMÁTICO', W / 2, 25, { align: 'center' });
-
-      // Linha decorativa laranja
-      doc.setDrawColor(249, 115, 22);
-      doc.setLineWidth(1.2);
-      doc.line(W / 2 - 60, 30, W / 2 + 60, 30);
-
-      // Conteúdo programático
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(51, 51, 51);
-      const linhasVerso = (template.verso_conteudo || '').split('\n');
-      let yVerso = 42;
-      const yLimite = H - 55; // reserva espaço para QR Code no rodapé
-      linhasVerso.forEach(l => {
-        if (yVerso > yLimite) return;
-        doc.text(l, 20, yVerso);
-        yVerso += 7;
-      });
-
-      // QR Code no rodapé centralizado
-      const qrSize = 32;
-      const qrX = (W - qrSize) / 2;
-      const qrY = H - qrSize - 14;
-      doc.addImage(qrBase64, 'PNG', qrX, qrY, qrSize, qrSize);
-
-      // Texto de validação ao lado do QR
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(80, 80, 80);
-      doc.text('Verifique a autenticidade deste certificado', W / 2, qrY - 4, { align: 'center' });
-
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(120, 120, 120);
-      doc.text(`Código: ${codigo}`, W / 2, H - 8, { align: 'center' });
     } else {
-      // Se não tem verso habilitado, cria página simples só com QR Code de validação
-      doc.addPage();
-      doc.setFillColor(250, 250, 250);
+      doc.setFillColor(252, 252, 252);
       doc.rect(0, 0, W, H, 'F');
+    }
 
+    // Conteúdo programático (se habilitado)
+    if (template.verso_habilitado && template.verso_conteudo) {
       doc.setFontSize(20);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(26, 26, 26);
-      doc.text('VALIDAÇÃO DO CERTIFICADO', W / 2, 50, { align: 'center' });
+      doc.text('CONTEÚDO PROGRAMÁTICO', W / 2, 22, { align: 'center' });
 
       doc.setDrawColor(249, 115, 22);
-      doc.setLineWidth(1.2);
-      doc.line(W / 2 - 60, 56, W / 2 + 60, 56);
-
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(80, 80, 80);
-      doc.text('Escaneie o QR Code abaixo para verificar a autenticidade.', W / 2, 70, { align: 'center' });
-
-      const qrSize = 60;
-      const qrX = (W - qrSize) / 2;
-      const qrY = 85;
-      doc.addImage(qrBase64, 'PNG', qrX, qrY, qrSize, qrSize);
+      doc.setLineWidth(1);
+      doc.line(W / 2 - 50, 27, W / 2 + 50, 27);
 
       doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(60, 60, 60);
-      doc.text(`Código: ${codigo}`, W / 2, qrY + qrSize + 10, { align: 'center' });
-
-      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(120, 120, 120);
-      doc.text(validacaoUrl, W / 2, qrY + qrSize + 18, { align: 'center' });
+      doc.setTextColor(51, 51, 51);
+      const linhasVerso = template.verso_conteudo.split('\n');
+      let yVerso = 38;
+      const limiteY = H - 60;
+      linhasVerso.forEach(l => {
+        if (yVerso > limiteY) return;
+        doc.text(l, 22, yVerso);
+        yVerso += 6.5;
+      });
     }
 
-    // Salvar registro
+    // QR Code centralizado no rodapé do verso
+    const qrSize = 35;
+    const qrX = (W - qrSize) / 2;
+    const qrY = H - qrSize - 18;
+    doc.addImage(qrBase64, 'PNG', qrX, qrY, qrSize, qrSize);
+
+    // Texto de validação
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(60, 60, 60);
+    doc.text('Verifique a autenticidade deste certificado', W / 2, qrY - 5, { align: 'center' });
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Código: ${codigo}`, W / 2, H - 10, { align: 'center' });
+    doc.text(validacaoUrl, W / 2, H - 5, { align: 'center' });
+
+    // ==================== Salvar registro ====================
     await base44.asServiceRole.entities.CertificadoEmitido.create({
       template_id,
       codigo_rastreio: codigo,
@@ -221,9 +187,10 @@ Deno.serve(async (req) => {
       created_at: new Date().toISOString(),
     });
 
-    // Retornar PDF como base64 dentro de JSON (evita corrupção pelo SDK frontend)
+    // ==================== Retornar PDF como base64 dentro de JSON ====================
+    // (evita corrupção do SDK ao manipular bytes binários como JSON)
     const pdfBuffer = doc.output('arraybuffer');
-    const pdfBase64 = encodeBase64(new Uint8Array(pdfBuffer));
+    const pdfBase64 = arrayBufferToBase64(pdfBuffer);
     const filename = `certificado_${nome_aluno.replace(/\s+/g, '_')}_${codigo}.pdf`;
 
     return Response.json({
