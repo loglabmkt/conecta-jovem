@@ -106,7 +106,8 @@ Deno.serve(async (req) => {
     const maxTextWidth = W - 360;
     const linhas = wrapText(textoFinal, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
-    const startY = H / 2 + blocoH / 2 - lineHeight; // pdf-lib: y de baixo p/ cima
+    // Sobe o bloco: centraliza entre o título "CERTIFICADO" (topo) e as assinaturas
+    const startY = H * 0.62 + blocoH / 2 - lineHeight;
 
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
@@ -189,10 +190,10 @@ Deno.serve(async (req) => {
 
     const qrSize = 220;
     const qrX = W - qrSize - 240; // alinhado à direita, dentro do retângulo branco
-    const qrY = 280;               // sobe para caber código + URL abaixo
+    const qrY = 200;               // mais próximo da linha das logos abaixo
     page2.drawImage(qrImg, { x: qrX, y: qrY, width: qrSize, height: qrSize });
 
-    // Código + URL abaixo do QR (centralizados sob o QR)
+    // Apenas código abaixo do QR (URL removida)
     const txtCodigo = `Código: ${codigo}`;
     const codigoSize = 20;
     const txtCodigoW = fontBold.widthOfTextAtSize(txtCodigo, codigoSize);
@@ -200,14 +201,6 @@ Deno.serve(async (req) => {
       x: qrX + (qrSize - txtCodigoW) / 2,
       y: qrY - 36,
       size: codigoSize, font: fontBold, color: rgb(0.25, 0.25, 0.25),
-    });
-
-    const urlSize = 16;
-    const txtUrlW = fontRegular.widthOfTextAtSize(validacaoUrl, urlSize);
-    page2.drawText(validacaoUrl, {
-      x: qrX + (qrSize - txtUrlW) / 2,
-      y: qrY - 62,
-      size: urlSize, font: fontRegular, color: rgb(0.45, 0.45, 0.45),
     });
 
     // Salvar registro
