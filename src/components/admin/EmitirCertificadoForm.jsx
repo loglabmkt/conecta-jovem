@@ -41,12 +41,21 @@ export default function EmitirCertificadoForm() {
         data_conclusao: dataConclusao,
       });
 
-      // O retorno é um PDF — fazer download via blob
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const data = response.data;
+      if (!data?.pdf_base64) {
+        throw new Error(data?.error || 'PDF não retornado');
+      }
+
+      // Decodificar base64 → bytes → blob (preserva binário)
+      const binary = atob(data.pdf_base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `certificado_${nomeAluno.replace(/\s+/g, '_')}.pdf`;
+      a.download = data.filename || `certificado_${nomeAluno.replace(/\s+/g, '_')}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
       setSucesso(`✅ Certificado de "${nomeAluno}" gerado e baixado com sucesso!`);
