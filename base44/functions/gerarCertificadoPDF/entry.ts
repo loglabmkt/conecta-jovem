@@ -78,10 +78,12 @@ Deno.serve(async (req) => {
       .replace(/\{course_name\}/g, nome_curso)
       .replace(/\{completion_date\}/g, data_conclusao);
 
-    // Criar PDF A4 landscape em pontos: 842 x 595
+    // PDF na proporção exata da arte (1920x1080 = 16:9), em pontos.
+    // Mantemos 1920x1080 como dimensões em pontos para preservar a proporção
+    // sem achatar a imagem de fundo.
     const pdfDoc = await PDFDocument.create();
-    const W = 842;
-    const H = 595;
+    const W = 1920;
+    const H = 1080;
     const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -98,10 +100,10 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Texto centralizado
-    const fontSize = 16;
-    const lineHeight = 24;
-    const maxTextWidth = W - 160;
+    // Texto centralizado (escalado para 1920x1080)
+    const fontSize = 36;
+    const lineHeight = 54;
+    const maxTextWidth = W - 360;
     const linhas = wrapText(textoFinal, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
     const startY = H / 2 + blocoH / 2 - lineHeight; // pdf-lib: y de baixo p/ cima
@@ -153,61 +155,59 @@ Deno.serve(async (req) => {
       page2.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(0.99, 0.99, 0.99) });
     }
 
-    // Conteúdo programático (se habilitado)
+    // Conteúdo programático (se habilitado) — escalado para 1920x1080
     if (template.verso_habilitado && template.verso_conteudo) {
       const titulo = 'CONTEÚDO PROGRAMÁTICO';
-      const tituloSize = 16;
+      const tituloSize = 36;
       const tituloW = fontBold.widthOfTextAtSize(titulo, tituloSize);
       page2.drawText(titulo, {
-        x: (W - tituloW) / 2, y: H - 50, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
+        x: (W - tituloW) / 2, y: H - 110, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
       });
-      // Linha laranja
       page2.drawLine({
-        start: { x: W / 2 - 140, y: H - 60 },
-        end: { x: W / 2 + 140, y: H - 60 },
-        thickness: 2, color: rgb(0.976, 0.451, 0.086),
+        start: { x: W / 2 - 320, y: H - 130 },
+        end: { x: W / 2 + 320, y: H - 130 },
+        thickness: 4, color: rgb(0.976, 0.451, 0.086),
       });
 
-      const conteudoSize = 11;
-      const conteudoLineH = 16;
-      const linhasVerso = wrapText(template.verso_conteudo, fontRegular, conteudoSize, W - 100);
-      let yVerso = H - 90;
-      const limiteY = 180; // espaço pro QR Code
+      const conteudoSize = 24;
+      const conteudoLineH = 36;
+      const linhasVerso = wrapText(template.verso_conteudo, fontRegular, conteudoSize, W - 280);
+      let yVerso = H - 200;
+      const limiteY = 350; // espaço pro QR Code
       for (const l of linhasVerso) {
         if (yVerso < limiteY) break;
-        page2.drawText(l, { x: 60, y: yVerso, size: conteudoSize, font: fontRegular, color: rgb(0.2, 0.2, 0.2) });
+        page2.drawText(l, { x: 140, y: yVerso, size: conteudoSize, font: fontRegular, color: rgb(0.2, 0.2, 0.2) });
         yVerso -= conteudoLineH;
       }
     }
 
-    // QR Code no rodapé do verso
-    const qrDataUrl = await QRCode.toDataURL(validacaoUrl, { width: 300, margin: 1 });
+    // QR Code à direita, dentro da área branca, mais alto para caber o link abaixo
+    const qrDataUrl = await QRCode.toDataURL(validacaoUrl, { width: 600, margin: 1 });
     const qrBase64 = qrDataUrl.split(',')[1];
     const qrBytes = Uint8Array.from(atob(qrBase64), c => c.charCodeAt(0));
     const qrImg = await pdfDoc.embedPng(qrBytes);
 
-    const qrSize = 100;
-    const qrX = (W - qrSize) / 2;
-    const qrY = 50;
+    const qrSize = 220;
+    const qrX = W - qrSize - 240; // alinhado à direita, dentro do retângulo branco
+    const qrY = 280;               // sobe para caber código + URL abaixo
     page2.drawImage(qrImg, { x: qrX, y: qrY, width: qrSize, height: qrSize });
 
-    // Textos de validação
-    const lblTitulo = 'Verifique a autenticidade deste certificado';
-    const lblTituloSize = 10;
-    const lblTituloW = fontBold.widthOfTextAtSize(lblTitulo, lblTituloSize);
-    page2.drawText(lblTitulo, {
-      x: (W - lblTituloW) / 2, y: qrY + qrSize + 10, size: lblTituloSize, font: fontBold, color: rgb(0.25, 0.25, 0.25),
-    });
-
+    // Código + URL abaixo do QR (centralizados sob o QR)
     const txtCodigo = `Código: ${codigo}`;
-    const txtCodigoW = fontRegular.widthOfTextAtSize(txtCodigo, 9);
+    const codigoSize = 20;
+    const txtCodigoW = fontBold.widthOfTextAtSize(txtCodigo, codigoSize);
     page2.drawText(txtCodigo, {
-      x: (W - txtCodigoW) / 2, y: 32, size: 9, font: fontRegular, color: rgb(0.45, 0.45, 0.45),
+      x: qrX + (qrSize - txtCodigoW) / 2,
+      y: qrY - 36,
+      size: codigoSize, font: fontBold, color: rgb(0.25, 0.25, 0.25),
     });
 
-    const txtUrlW = fontRegular.widthOfTextAtSize(validacaoUrl, 8);
+    const urlSize = 16;
+    const txtUrlW = fontRegular.widthOfTextAtSize(validacaoUrl, urlSize);
     page2.drawText(validacaoUrl, {
-      x: (W - txtUrlW) / 2, y: 18, size: 8, font: fontRegular, color: rgb(0.55, 0.55, 0.55),
+      x: qrX + (qrSize - txtUrlW) / 2,
+      y: qrY - 62,
+      size: urlSize, font: fontRegular, color: rgb(0.45, 0.45, 0.45),
     });
 
     // Salvar registro
