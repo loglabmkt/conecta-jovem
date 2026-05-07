@@ -237,7 +237,7 @@ export default function CertificadoTemplateForm({ template, onSalvo, onCancelar 
               )}
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a', textAlign: 'center', marginTop: 4, marginBottom: 12 }}>CONTEÚDO PROGRAMÁTICO</p>
-                <p style={{ fontSize: 9, color: '#333', whiteSpace: 'pre-line', lineHeight: 1.5 }}>{versoConteudo || 'Conteúdo aparecerá aqui...'}</p>
+                <p style={{ fontSize: 9, color: '#333', whiteSpace: 'pre-line', lineHeight: 1.5, textAlign: 'center' }}>{versoConteudo || 'Conteúdo aparecerá aqui...'}</p>
               </div>
             </div>
           )}

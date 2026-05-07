@@ -172,7 +172,8 @@ Deno.serve(async (req) => {
       const limiteY = 350; // espaço pro QR Code
       for (const l of linhasVerso) {
         if (yVerso < limiteY) break;
-        page2.drawText(l, { x: 140, y: yVerso, size: conteudoSize, font: fontRegular, color: rgb(0.2, 0.2, 0.2) });
+        const lW = fontRegular.widthOfTextAtSize(l, conteudoSize);
+        page2.drawText(l, { x: (W - lW) / 2, y: yVerso, size: conteudoSize, font: fontRegular, color: rgb(0.2, 0.2, 0.2) });
         yVerso -= conteudoLineH;
       }
     }
