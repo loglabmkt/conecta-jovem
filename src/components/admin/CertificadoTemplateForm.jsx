@@ -236,8 +236,7 @@ export default function CertificadoTemplateForm({ template, onSalvo, onCancelar 
                 <img src={versoImagemUrl} alt="verso" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.3 }} />
               )}
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a', textAlign: 'center', marginBottom: 4 }}>CONTEÚDO PROGRAMÁTICO</p>
-                <hr style={{ borderColor: '#F97316', borderWidth: 1, marginBottom: 8 }} />
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a', textAlign: 'center', marginTop: 24, marginBottom: 16 }}>CONTEÚDO PROGRAMÁTICO</p>
                 <p style={{ fontSize: 9, color: '#333', whiteSpace: 'pre-line', lineHeight: 1.5 }}>{versoConteudo || 'Conteúdo aparecerá aqui...'}</p>
               </div>
             </div>

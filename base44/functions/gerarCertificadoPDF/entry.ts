@@ -162,18 +162,13 @@ Deno.serve(async (req) => {
       const tituloSize = 36;
       const tituloW = fontBold.widthOfTextAtSize(titulo, tituloSize);
       page2.drawText(titulo, {
-        x: (W - tituloW) / 2, y: H - 110, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
-      });
-      page2.drawLine({
-        start: { x: W / 2 - 320, y: H - 130 },
-        end: { x: W / 2 + 320, y: H - 130 },
-        thickness: 4, color: rgb(0.976, 0.451, 0.086),
+        x: (W - tituloW) / 2, y: H - 170, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
       });
 
       const conteudoSize = 24;
       const conteudoLineH = 36;
       const linhasVerso = wrapText(template.verso_conteudo, fontRegular, conteudoSize, W - 280);
-      let yVerso = H - 200;
+      let yVerso = H - 250;
       const limiteY = 350; // espaço pro QR Code
       for (const l of linhasVerso) {
         if (yVerso < limiteY) break;
