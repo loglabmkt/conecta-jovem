@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
       const tituloSize = 36;
       const tituloW = fontBold.widthOfTextAtSize(titulo, tituloSize);
       page2.drawText(titulo, {
-        x: (W - tituloW) / 2, y: H - 170, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
+        x: (W - tituloW) / 2, y: H - 140, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
       });
 
       // Parse das linhas: aceita formatos "Nome - 25H", "Nome - 25h", "Nome | 25", "Nome 25"
@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
       const fontSizeRow = 20;
       const fontSizeHead = 18;
 
-      let yTable = H - 230;
+      let yTable = H - 200;
 
       // Cabeçalho
       page2.drawRectangle({
@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
       });
       yTable -= rowH;
 
-      const limiteY = 340; // reserva espaço pro QR e logos
+      const limiteY = 200; // reserva espaço pro rodapé/logos (QR fica ao lado, não embaixo)
       for (let i = 0; i < itens.length; i++) {
         if (yTable - rowH < limiteY) break;
         const { nome, horas } = itens[i];
@@ -267,18 +267,19 @@ Deno.serve(async (req) => {
     const qrBytes = Uint8Array.from(atob(qrBase64), c => c.charCodeAt(0));
     const qrImg = await pdfDoc.embedPng(qrBytes);
 
-    const qrSize = 220;
-    const qrX = W - qrSize - 240; // alinhado à direita, dentro do retângulo branco
-    const qrY = 200;               // mais próximo da linha das logos abaixo
+    // QR Code menor, posicionado no canto inferior direito, acima dos logos
+    const qrSize = 140;
+    const qrX = W - qrSize - 180; // canto direito, dentro da área branca
+    const qrY = 150;               // bem acima dos logos do rodapé
     page2.drawImage(qrImg, { x: qrX, y: qrY, width: qrSize, height: qrSize });
 
-    // Apenas código abaixo do QR (URL removida)
+    // Código abaixo do QR
     const txtCodigo = `Código: ${codigo}`;
-    const codigoSize = 20;
+    const codigoSize = 14;
     const txtCodigoW = fontBold.widthOfTextAtSize(txtCodigo, codigoSize);
     page2.drawText(txtCodigo, {
       x: qrX + (qrSize - txtCodigoW) / 2,
-      y: qrY - 36,
+      y: qrY - 24,
       size: codigoSize, font: fontBold, color: rgb(0.25, 0.25, 0.25),
     });
 
