@@ -33,11 +33,18 @@ async function embedImage(pdfDoc, bytes) {
 }
 
 // Quebra texto em linhas que cabem na largura, respeitando \n existentes
+// Preserva linhas vazias (Enters duplos) como espaçamento extra.
 function wrapText(text, font, fontSize, maxWidth) {
   const linhasOriginais = text.split('\n');
   const resultado = [];
   for (const linhaOrig of linhasOriginais) {
-    const palavras = linhaOrig.split(' ');
+    const trimmed = linhaOrig.trim();
+    // Linha vazia → preserva como espaçamento
+    if (trimmed === '') {
+      resultado.push('');
+      continue;
+    }
+    const palavras = trimmed.split(/\s+/);
     let linhaAtual = '';
     for (const palavra of palavras) {
       const teste = linhaAtual ? linhaAtual + ' ' + palavra : palavra;
