@@ -123,20 +123,36 @@ Deno.serve(async (req) => {
         const antes = partes[0];
         const depois = partes.slice(1).join(nome_aluno);
 
-        const wAntes = fontRegular.widthOfTextAtSize(antes, fontSize);
+        // Largura do espaço (calculada explicitamente para evitar perda
+        // de espaços nas bordas dos fragmentos pelo widthOfTextAtSize)
+        const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
+
+        // Detecta espaços de borda que serão desenhados separadamente
+        const antesEndsSpace = antes.endsWith(' ');
+        const depoisStartsSpace = depois.startsWith(' ');
+        const antesTrim = antesEndsSpace ? antes.replace(/ +$/, '') : antes;
+        const depoisTrim = depoisStartsSpace ? depois.replace(/^ +/, '') : depois;
+
+        const wAntes = fontRegular.widthOfTextAtSize(antesTrim, fontSize);
         const wNome = fontBold.widthOfTextAtSize(nome_aluno, fontSize);
-        const wDepois = fontRegular.widthOfTextAtSize(depois, fontSize);
-        const total = wAntes + wNome + wDepois;
+        const wDepois = fontRegular.widthOfTextAtSize(depoisTrim, fontSize);
+        const total = wAntes
+          + (antesEndsSpace ? wSpace : 0)
+          + wNome
+          + (depoisStartsSpace ? wSpace : 0)
+          + wDepois;
         let x = (W - total) / 2;
 
-        if (antes) {
-          page1.drawText(antes, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
+        if (antesTrim) {
+          page1.drawText(antesTrim, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
           x += wAntes;
         }
+        if (antesEndsSpace) x += wSpace;
         page1.drawText(nome_aluno, { x, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0) });
         x += wNome;
-        if (depois) {
-          page1.drawText(depois, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
+        if (depoisStartsSpace) x += wSpace;
+        if (depoisTrim) {
+          page1.drawText(depoisTrim, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
         }
       } else {
         const w = fontRegular.widthOfTextAtSize(linha, fontSize);
