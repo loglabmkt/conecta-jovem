@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
       const tituloSize = 18;
       const tituloW = fontBold.widthOfTextAtSize(titulo, tituloSize);
       page2.drawText(titulo, {
-        x: (W - tituloW) / 2, y: H - 60, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
+        x: (W - tituloW) / 2, y: H - 90, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
       });
 
       // Parse das linhas: aceita formatos "Nome - 25H", "Nome - 25h", "Nome | 25", "Nome 25"
@@ -190,7 +190,7 @@ Deno.serve(async (req) => {
       const fontSizeRow = 10;
       const fontSizeHead = 9;
 
-      let yTable = H - 90;
+      let yTable = H - 120;
 
       // Cabeçalho
       page2.drawRectangle({
