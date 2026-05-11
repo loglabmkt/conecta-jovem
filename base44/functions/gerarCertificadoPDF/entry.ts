@@ -80,10 +80,22 @@ Deno.serve(async (req) => {
     const validacaoUrl = `https://conectajovem.loglabdigital.com.br/certificado/${codigo}`;
 
     // Texto com substituição
-    const textoFinal = (template.texto_certificado || '')
+    const textoSubstituido = (template.texto_certificado || '')
       .replace(/\{full_name\}/g, nome_aluno)
       .replace(/\{course_name\}/g, nome_curso)
       .replace(/\{completion_date\}/g, data_conclusao);
+
+    // Normalizar quebras de linha:
+    // - Duplo \n (linha em branco) = parágrafo intencional → preservar
+    // - \n simples = quebra manual indesejada → vira espaço (wrap automático)
+    const textoFinal = textoSubstituido
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/\n{2,}/g, '§PARAGRAFO§')
+      .replace(/\n/g, ' ')
+      .replace(/§PARAGRAFO§/g, '\n\n')
+      .replace(/[ \t]+/g, ' ')
+      .trim();
 
     // PDF em A4 paisagem (297mm × 210mm = 842 × 595 pt).
     // Proporção 1.414:1 — equivale a 1754×1240px @ 150dpi para impressão.
