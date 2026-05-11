@@ -130,40 +130,37 @@ Deno.serve(async (req) => {
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
       if (linha.includes(nome_aluno)) {
-        // Renderizar partes com nome em negrito
+        // Renderizar partes com nome em negrito.
+        // Estratégia: SEMPRE inserir 1 espaço antes e depois do nome,
+        // sem depender de detecção de espaços nas bordas dos fragmentos
+        // (o widthOfTextAtSize do pdf-lib ignora espaços de borda).
         const partes = linha.split(nome_aluno);
-        const antes = partes[0];
-        const depois = partes.slice(1).join(nome_aluno);
+        const antesTrim = partes[0].replace(/ +$/, '');
+        const depoisTrim = partes.slice(1).join(nome_aluno).replace(/^ +/, '');
 
-        // Largura do espaço (calculada explicitamente para evitar perda
-        // de espaços nas bordas dos fragmentos pelo widthOfTextAtSize)
+        // Largura do espaço calculada explicitamente
         const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
-
-        // Detecta espaços de borda que serão desenhados separadamente
-        const antesEndsSpace = antes.endsWith(' ');
-        const depoisStartsSpace = depois.startsWith(' ');
-        const antesTrim = antesEndsSpace ? antes.replace(/ +$/, '') : antes;
-        const depoisTrim = depoisStartsSpace ? depois.replace(/^ +/, '') : depois;
-
         const wAntes = fontRegular.widthOfTextAtSize(antesTrim, fontSize);
-        const wNome = fontBold.widthOfTextAtSize(nome_aluno, fontSize);
+        const wNome = fontBold.widthOfTextAtSize(nome_aluno.trim(), fontSize);
         const wDepois = fontRegular.widthOfTextAtSize(depoisTrim, fontSize);
+
+        const hasAntes = antesTrim.length > 0;
+        const hasDepois = depoisTrim.length > 0;
         const total = wAntes
-          + (antesEndsSpace ? wSpace : 0)
+          + (hasAntes ? wSpace : 0)
           + wNome
-          + (depoisStartsSpace ? wSpace : 0)
+          + (hasDepois ? wSpace : 0)
           + wDepois;
         let x = (W - total) / 2;
 
-        if (antesTrim) {
+        if (hasAntes) {
           page1.drawText(antesTrim, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
-          x += wAntes;
+          x += wAntes + wSpace;
         }
-        if (antesEndsSpace) x += wSpace;
-        page1.drawText(nome_aluno, { x, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0) });
+        page1.drawText(nome_aluno.trim(), { x, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0) });
         x += wNome;
-        if (depoisStartsSpace) x += wSpace;
-        if (depoisTrim) {
+        if (hasDepois) {
+          x += wSpace;
           page1.drawText(depoisTrim, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
         }
       } else {
