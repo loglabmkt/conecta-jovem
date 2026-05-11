@@ -136,7 +136,7 @@ export default function EmitirCertificadoForm() {
       <div style={{ flex: 1, minWidth: 280 }}>
         <p style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>PREVIEW DO CERTIFICADO</p>
         <div style={{
-          width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden',
+          width: '100%', aspectRatio: '1754/1240', borderRadius: 12, overflow: 'hidden',
           border: '1px solid #E2E8F0', position: 'relative',
           background: templateSelecionado?.imagem_fundo_url ? 'transparent' : '#F8F8F8',
         }}>

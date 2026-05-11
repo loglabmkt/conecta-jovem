@@ -85,12 +85,11 @@ Deno.serve(async (req) => {
       .replace(/\{course_name\}/g, nome_curso)
       .replace(/\{completion_date\}/g, data_conclusao);
 
-    // PDF na proporção exata da arte (1920x1080 = 16:9), em pontos.
-    // Mantemos 1920x1080 como dimensões em pontos para preservar a proporção
-    // sem achatar a imagem de fundo.
+    // PDF em A4 paisagem (297mm × 210mm = 842 × 595 pt).
+    // Proporção 1.414:1 — equivale a 1754×1240px @ 150dpi para impressão.
     const pdfDoc = await PDFDocument.create();
-    const W = 1920;
-    const H = 1080;
+    const W = 842;
+    const H = 595;
     const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -107,10 +106,10 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Texto centralizado (escalado para 1920x1080)
-    const fontSize = 36;
-    const lineHeight = 54;
-    const maxTextWidth = W - 360;
+    // Texto centralizado (escalado para A4 paisagem 842×595pt)
+    const fontSize = 16;
+    const lineHeight = 24;
+    const maxTextWidth = W - 160;
     const linhas = wrapText(textoFinal, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
     // Sobe o bloco: centraliza entre o título "CERTIFICADO" (topo) e as assinaturas
@@ -166,10 +165,10 @@ Deno.serve(async (req) => {
     // Conteúdo programático (se habilitado) — renderizado como tabela
     if (template.verso_habilitado && template.verso_conteudo) {
       const titulo = 'CONTEÚDO PROGRAMÁTICO';
-      const tituloSize = 36;
+      const tituloSize = 18;
       const tituloW = fontBold.widthOfTextAtSize(titulo, tituloSize);
       page2.drawText(titulo, {
-        x: (W - tituloW) / 2, y: H - 140, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
+        x: (W - tituloW) / 2, y: H - 60, size: tituloSize, font: fontBold, color: rgb(0.1, 0.1, 0.1),
       });
 
       // Parse das linhas: aceita formatos "Nome - 25H", "Nome - 25h", "Nome | 25", "Nome 25"
@@ -182,16 +181,16 @@ Deno.serve(async (req) => {
       });
 
       // Layout da tabela
-      const tableW = 1100;
+      const tableW = 560;
       const tableX = (W - tableW) / 2;
-      const colHorasW = 180;
+      const colHorasW = 90;
       const colNomeW = tableW - colHorasW;
-      const rowH = 44;
-      const cellPadX = 20;
-      const fontSizeRow = 20;
-      const fontSizeHead = 18;
+      const rowH = 22;
+      const cellPadX = 10;
+      const fontSizeRow = 10;
+      const fontSizeHead = 9;
 
-      let yTable = H - 200;
+      let yTable = H - 90;
 
       // Cabeçalho
       page2.drawRectangle({
@@ -199,18 +198,18 @@ Deno.serve(async (req) => {
         color: rgb(0.96, 0.96, 0.97),
       });
       page2.drawText('Módulo', {
-        x: tableX + cellPadX, y: yTable - rowH + (rowH - fontSizeHead) / 2 + 4,
+        x: tableX + cellPadX, y: yTable - rowH + (rowH - fontSizeHead) / 2 + 2,
         size: fontSizeHead, font: fontBold, color: rgb(0.4, 0.4, 0.45),
       });
       const headHorasW = fontBold.widthOfTextAtSize('Total (h)', fontSizeHead);
       page2.drawText('Total (h)', {
         x: tableX + tableW - cellPadX - headHorasW,
-        y: yTable - rowH + (rowH - fontSizeHead) / 2 + 4,
+        y: yTable - rowH + (rowH - fontSizeHead) / 2 + 2,
         size: fontSizeHead, font: fontBold, color: rgb(0.4, 0.4, 0.45),
       });
       yTable -= rowH;
 
-      const limiteY = 200; // reserva espaço pro rodapé/logos (QR fica ao lado, não embaixo)
+      const limiteY = 110; // reserva espaço pro rodapé/logos (QR fica ao lado, não embaixo)
       for (let i = 0; i < itens.length; i++) {
         if (yTable - rowH < limiteY) break;
         const { nome, horas } = itens[i];
@@ -242,7 +241,7 @@ Deno.serve(async (req) => {
 
         page2.drawText(nomeTxt, {
           x: tableX + cellPadX,
-          y: yTable - rowH + (rowH - fontSizeRow) / 2 + 4,
+          y: yTable - rowH + (rowH - fontSizeRow) / 2 + 2,
           size: fontSizeRow, font: fNome, color: rgb(0.15, 0.15, 0.18),
         });
 
@@ -252,7 +251,7 @@ Deno.serve(async (req) => {
           const horasW = fHoras.widthOfTextAtSize(horas, fontSizeRow);
           page2.drawText(horas, {
             x: tableX + tableW - cellPadX - horasW,
-            y: yTable - rowH + (rowH - fontSizeRow) / 2 + 4,
+            y: yTable - rowH + (rowH - fontSizeRow) / 2 + 2,
             size: fontSizeRow, font: fHoras, color: rgb(0.15, 0.15, 0.18),
           });
         }
@@ -274,19 +273,19 @@ Deno.serve(async (req) => {
     const qrBytes = Uint8Array.from(atob(qrBase64), c => c.charCodeAt(0));
     const qrImg = await pdfDoc.embedPng(qrBytes);
 
-    // QR Code menor, posicionado no canto inferior direito, acima dos logos
-    const qrSize = 140;
-    const qrX = W - qrSize - 180; // canto direito, dentro da área branca
-    const qrY = 150;               // bem acima dos logos do rodapé
+    // QR Code (canto inferior direito, acima dos logos) — escalado para A4
+    const qrSize = 70;
+    const qrX = W - qrSize - 80; // canto direito, dentro da área branca
+    const qrY = 70;               // acima dos logos do rodapé
     page2.drawImage(qrImg, { x: qrX, y: qrY, width: qrSize, height: qrSize });
 
     // Código abaixo do QR
     const txtCodigo = `Código: ${codigo}`;
-    const codigoSize = 14;
+    const codigoSize = 8;
     const txtCodigoW = fontBold.widthOfTextAtSize(txtCodigo, codigoSize);
     page2.drawText(txtCodigo, {
       x: qrX + (qrSize - txtCodigoW) / 2,
-      y: qrY - 24,
+      y: qrY - 12,
       size: codigoSize, font: fontBold, color: rgb(0.25, 0.25, 0.25),
     });
 

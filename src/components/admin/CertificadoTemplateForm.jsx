@@ -205,7 +205,7 @@ export default function CertificadoTemplateForm({ template, onSalvo, onCancelar 
           <p style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>PREVIEW</p>
           {aba === 'frente' && (
             <div style={{
-              width: '100%', aspectRatio: '16/9', borderRadius: 10, overflow: 'hidden',
+              width: '100%', aspectRatio: '1754/1240', borderRadius: 10, overflow: 'hidden',
               border: '1px solid #E2E8F0', position: 'relative', background: '#F8F8F8',
             }}>
               {imagemFundoUrl && (
@@ -228,7 +228,7 @@ export default function CertificadoTemplateForm({ template, onSalvo, onCancelar 
           )}
           {aba === 'verso' && versoHabilitado && (
             <div style={{
-              width: '100%', aspectRatio: '16/9', borderRadius: 10, overflow: 'hidden',
+              width: '100%', aspectRatio: '1754/1240', borderRadius: 10, overflow: 'hidden',
               border: '1px solid #E2E8F0', position: 'relative', background: '#FAFAFA',
               padding: 16, boxSizing: 'border-box',
             }}>
