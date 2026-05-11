@@ -123,13 +123,16 @@ Deno.serve(async (req) => {
     const lineHeight = 24;
     const maxTextWidth = W - 160;
 
+    // Sanitiza removendo caracteres de controle que o WinAnsi não codifica
+    const sanitize = (s) => (s || '').replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+
     // Substitui o nome do aluno por um placeholder ANTES do wrap.
     // Motivo: nomes com espaços internos (ex: "DANIEL W. MOYA CATRINO")
     // são fragmentados pelo wrapText (split por espaços), perdendo a
-    // referência. O placeholder é uma única "palavra" sem ambiguidade.
-    const NOME_PLACEHOLDER = '\u0001NOME_ALUNO\u0001';
-    const nomeAlunoTrim = nome_aluno.trim();
-    const textoComPlaceholder = textoFinal.replace(nomeAlunoTrim, NOME_PLACEHOLDER);
+    // referência. Placeholder é ASCII puro, sem caracteres especiais.
+    const NOME_PLACEHOLDER = 'XNOMEALUNOX';
+    const nomeAlunoTrim = sanitize(nome_aluno).trim();
+    const textoComPlaceholder = sanitize(textoFinal).replace(nomeAlunoTrim, NOME_PLACEHOLDER);
     const linhas = wrapText(textoComPlaceholder, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
     // Sobe o bloco: centraliza entre o título "CERTIFICADO" (topo) e as assinaturas
@@ -141,8 +144,8 @@ Deno.serve(async (req) => {
         // Dividir pelo placeholder — sem ambiguidade, mesmo para nomes
         // com pontos/abreviações (ex: "DANIEL W. MOYA CATRINO").
         const partes = linha.split(NOME_PLACEHOLDER);
-        const antesTrim = partes[0].replace(/ +$/, '');
-        const depoisTrim = partes.slice(1).join(NOME_PLACEHOLDER).replace(/^ +/, '');
+        const antesTrim = sanitize(partes[0]).replace(/ +$/, '');
+        const depoisTrim = sanitize(partes.slice(1).join(NOME_PLACEHOLDER)).replace(/^ +/, '');
 
         // Largura do espaço explícita (widthOfTextAtSize ignora espaços de borda)
         const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
