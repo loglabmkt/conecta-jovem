@@ -122,26 +122,32 @@ Deno.serve(async (req) => {
     const fontSize = 16;
     const lineHeight = 24;
     const maxTextWidth = W - 160;
-    const linhas = wrapText(textoFinal, fontRegular, fontSize, maxTextWidth);
+
+    // Substitui o nome do aluno por um placeholder ANTES do wrap.
+    // Motivo: nomes com espaços internos (ex: "DANIEL W. MOYA CATRINO")
+    // são fragmentados pelo wrapText (split por espaços), perdendo a
+    // referência. O placeholder é uma única "palavra" sem ambiguidade.
+    const NOME_PLACEHOLDER = '\u0001NOME_ALUNO\u0001';
+    const nomeAlunoTrim = nome_aluno.trim();
+    const textoComPlaceholder = textoFinal.replace(nomeAlunoTrim, NOME_PLACEHOLDER);
+    const linhas = wrapText(textoComPlaceholder, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
     // Sobe o bloco: centraliza entre o título "CERTIFICADO" (topo) e as assinaturas
     const startY = H * 0.62 + blocoH / 2 - lineHeight;
 
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
-      if (linha.includes(nome_aluno)) {
-        // Renderizar partes com nome em negrito.
-        // Estratégia: SEMPRE inserir 1 espaço antes e depois do nome,
-        // sem depender de detecção de espaços nas bordas dos fragmentos
-        // (o widthOfTextAtSize do pdf-lib ignora espaços de borda).
-        const partes = linha.split(nome_aluno);
+      if (linha.includes(NOME_PLACEHOLDER)) {
+        // Dividir pelo placeholder — sem ambiguidade, mesmo para nomes
+        // com pontos/abreviações (ex: "DANIEL W. MOYA CATRINO").
+        const partes = linha.split(NOME_PLACEHOLDER);
         const antesTrim = partes[0].replace(/ +$/, '');
-        const depoisTrim = partes.slice(1).join(nome_aluno).replace(/^ +/, '');
+        const depoisTrim = partes.slice(1).join(NOME_PLACEHOLDER).replace(/^ +/, '');
 
-        // Largura do espaço calculada explicitamente
+        // Largura do espaço explícita (widthOfTextAtSize ignora espaços de borda)
         const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
         const wAntes = fontRegular.widthOfTextAtSize(antesTrim, fontSize);
-        const wNome = fontBold.widthOfTextAtSize(nome_aluno.trim(), fontSize);
+        const wNome = fontBold.widthOfTextAtSize(nomeAlunoTrim, fontSize);
         const wDepois = fontRegular.widthOfTextAtSize(depoisTrim, fontSize);
 
         const hasAntes = antesTrim.length > 0;
@@ -157,7 +163,7 @@ Deno.serve(async (req) => {
           page1.drawText(antesTrim, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
           x += wAntes + wSpace;
         }
-        page1.drawText(nome_aluno.trim(), { x, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0) });
+        page1.drawText(nomeAlunoTrim, { x, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0) });
         x += wNome;
         if (hasDepois) {
           x += wSpace;
