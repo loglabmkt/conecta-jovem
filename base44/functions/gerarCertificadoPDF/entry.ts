@@ -79,10 +79,12 @@ Deno.serve(async (req) => {
     const codigo = gerarCodigo();
     const validacaoUrl = `https://conectajovem.loglabdigital.com.br/certificado/${codigo}`;
 
-    // Texto com substituição
+    // Texto com substituição — envolve nome e curso com espaços garantidos
+    // para que, mesmo após wrapText ou normalizações, exista separação
+    // visual antes/depois dos termos em negrito.
     const textoSubstituido = (template.texto_certificado || '')
-      .replace(/\{full_name\}/g, nome_aluno)
-      .replace(/\{course_name\}/g, nome_curso)
+      .replace(/\{full_name\}/g, ' ' + nome_aluno.trim() + ' ')
+      .replace(/\{course_name\}/g, ' ' + nome_curso.trim() + ' ')
       .replace(/\{completion_date\}/g, data_conclusao);
 
     // Normalizar quebras de linha:
@@ -146,6 +148,21 @@ Deno.serve(async (req) => {
     // única vez, sem overdraw.
     const termosBold = [nomeAlunoTrim, nomeCursoTrim].filter(Boolean);
 
+    // pdf-lib's widthOfTextAtSize IGNORA espaços nas bordas. Para que o
+    // cursor X avance corretamente quando um segmento normal começa/termina
+    // com espaço (ex: " concluiu"), medimos esses espaços separadamente.
+    const wSpaceN = fontRegular.widthOfTextAtSize(' x', fontSize) - fontRegular.widthOfTextAtSize('x', fontSize);
+    const medirSeg = (seg) => {
+      const f = seg.bold ? fontBold : fontRegular;
+      const mEsq = seg.texto.match(/^ +/);
+      const mDir = seg.texto.match(/ +$/);
+      const espEsq = mEsq ? mEsq[0].length : 0;
+      const espDir = mDir ? mDir[0].length : 0;
+      const miolo = seg.texto.slice(espEsq, seg.texto.length - espDir);
+      const wMiolo = miolo.length > 0 ? f.widthOfTextAtSize(miolo, fontSize) : 0;
+      return (espEsq + espDir) * wSpaceN + wMiolo;
+    };
+
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
 
@@ -165,11 +182,8 @@ Deno.serve(async (req) => {
         });
       });
 
-      // Largura total para centralizar
-      const largTotal = segmentos.reduce((acc, seg) => {
-        const f = seg.bold ? fontBold : fontRegular;
-        return acc + f.widthOfTextAtSize(seg.texto, fontSize);
-      }, 0);
+      // Largura total (com espaços de borda compensados)
+      const largTotal = segmentos.reduce((acc, seg) => acc + medirSeg(seg), 0);
 
       // X inicial centralizado, respeitando margem mínima
       let x = Math.max((W - largTotal) / 2, MARGEM_MIN);
@@ -179,7 +193,7 @@ Deno.serve(async (req) => {
         if (seg.texto.length === 0) return;
         const f = seg.bold ? fontBold : fontRegular;
         page1.drawText(seg.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
-        x += f.widthOfTextAtSize(seg.texto, fontSize);
+        x += medirSeg(seg);
       });
     });
 
