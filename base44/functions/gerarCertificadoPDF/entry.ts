@@ -138,35 +138,48 @@ Deno.serve(async (req) => {
     // Centraliza verticalmente entre o título "CERTIFICADO" e as assinaturas (+40pt)
     const startY = H * 0.48 + 40 + blocoH / 2 - lineHeight;
 
-    // Estratégia OVERDRAW:
-    // 1) Desenha a linha INTEIRA em fonte normal (preserva 100% dos espaços)
-    // 2) Para cada termo em negrito presente na linha, mede a substring
-    //    anterior em fonte normal para achar o X exato e redesenha o termo
-    //    por cima em negrito.
-    // Vantagem: elimina problemas de medição de espaços entre fragmentos.
+    // Estratégia SEGMENTOS SEQUENCIAIS:
+    // Divide a linha em segmentos { texto, bold } usando indexOf para
+    // localizar os termos em negrito. Os espaços antes/depois ficam
+    // naturalmente nos segmentos NORMAIS adjacentes (não no termo bold),
+    // preservando-se em qualquer caso. Cada segmento é desenhado uma
+    // única vez, sem overdraw.
     const termosBold = [nomeAlunoTrim, nomeCursoTrim].filter(Boolean);
 
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
 
-      // Largura total e X inicial (centralizado, respeitando margem mínima)
-      const largTotal = fontRegular.widthOfTextAtSize(linha, fontSize);
-      const xInicio = Math.max((W - largTotal) / 2, MARGEM_MIN);
-
-      // 1) Linha completa em fonte normal
-      page1.drawText(linha, {
-        x: xInicio, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0),
+      // Constrói segmentos dividindo por cada termo em negrito
+      let segmentos = [{ texto: linha, bold: false }];
+      termosBold.forEach((termo) => {
+        segmentos = segmentos.flatMap((seg) => {
+          if (seg.bold) return [seg];
+          const pos = seg.texto.indexOf(termo);
+          if (pos === -1) return [seg];
+          const out = [];
+          if (pos > 0) out.push({ texto: seg.texto.substring(0, pos), bold: false });
+          out.push({ texto: termo, bold: true });
+          const resto = seg.texto.substring(pos + termo.length);
+          if (resto.length > 0) out.push({ texto: resto, bold: false });
+          return out;
+        });
       });
 
-      // 2) Redesenha termos em negrito por cima
-      termosBold.forEach((termo) => {
-        const i = linha.indexOf(termo);
-        if (i === -1) return;
-        const antes = linha.substring(0, i);
-        const xTermo = xInicio + fontRegular.widthOfTextAtSize(antes, fontSize);
-        page1.drawText(termo, {
-          x: xTermo, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0),
-        });
+      // Largura total para centralizar
+      const largTotal = segmentos.reduce((acc, seg) => {
+        const f = seg.bold ? fontBold : fontRegular;
+        return acc + f.widthOfTextAtSize(seg.texto, fontSize);
+      }, 0);
+
+      // X inicial centralizado, respeitando margem mínima
+      let x = Math.max((W - largTotal) / 2, MARGEM_MIN);
+
+      // Desenha cada segmento UMA ÚNICA VEZ
+      segmentos.forEach((seg) => {
+        if (seg.texto.length === 0) return;
+        const f = seg.bold ? fontBold : fontRegular;
+        page1.drawText(seg.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
+        x += f.widthOfTextAtSize(seg.texto, fontSize);
       });
     });
 
