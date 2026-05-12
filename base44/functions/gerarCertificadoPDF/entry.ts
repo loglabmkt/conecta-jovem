@@ -119,96 +119,88 @@ Deno.serve(async (req) => {
     }
 
     // ===== Configuração do texto principal (A4 landscape 842×595pt) =====
-    const MARGEM_ESQUERDA = 120;
-    const MARGEM_DIREITA = 120;
-    const maxTextWidth = W - MARGEM_ESQUERDA - MARGEM_DIREITA; // 602pt
+    const MARGEM_MIN = 80;
+    const maxTextWidth = W - (MARGEM_MIN * 2); // 682pt — área útil de texto
     const fontSize = 14;
     const lineHeight = Math.round(fontSize * 1.6); // 22pt
 
     // Sanitiza removendo caracteres de controle que o WinAnsi não codifica
     const sanitize = (s) => (s || '').replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
-    // Substitui nome do aluno e nome do curso por placeholders ANTES do wrap.
-    // Placeholders são ASCII puro, evitando fragmentação por wrapText e
-    // problemas de encoding WinAnsi.
-    const NOME_PLACEHOLDER = 'XNOMEALUNOX';
-    const CURSO_PLACEHOLDER = 'XNOMECURSOX';
+    // Usa o texto REAL (com nomes substituídos) no wrapText — assim o curso
+    // longo pode ser quebrado entre suas palavras normalmente. A detecção
+    // de nome/curso e aplicação de negrito é feita no momento do desenho.
     const nomeAlunoTrim = sanitize(nome_aluno).trim();
     const nomeCursoTrim = sanitize(nome_curso).trim();
-    const textoComPlaceholder = sanitize(textoFinal)
-      .replace(nomeAlunoTrim, NOME_PLACEHOLDER)
-      .replace(nomeCursoTrim, CURSO_PLACEHOLDER);
-    const linhas = wrapText(textoComPlaceholder, fontRegular, fontSize, maxTextWidth);
+    const textoSanitizado = sanitize(textoFinal);
+    const linhas = wrapText(textoSanitizado, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
-    // Centraliza verticalmente em ~52% da altura (levemente abaixo do meio)
-    const startY = H * 0.52 + blocoH / 2 - lineHeight;
+    // Sobe o bloco em ~100pt: posição mais alta, com mais respiro abaixo
+    const startY = H * 0.52 + 100 + blocoH / 2 - lineHeight;
 
-    // Tokeniza uma linha em segmentos { texto, bold }.
-    // CRÍTICO: pdf-lib's widthOfTextAtSize IGNORA espaços nas bordas de uma
-    // string. Por isso, segmentos como " concluiu " seriam medidos como
-    // "concluiu" mas desenhados sem os espaços — eliminando o espaço entre
-    // texto regular e placeholders em negrito. Solução: separar os espaços
-    // de borda em segmentos próprios (medidos explicitamente com ' ').
-    const PLACEHOLDERS = {
-      [NOME_PLACEHOLDER]: nomeAlunoTrim,
-      [CURSO_PLACEHOLDER]: nomeCursoTrim,
+    // Divide uma linha em fragmentos { texto, bold } detectando ocorrências
+    // do nome do aluno e do nome do curso (em qualquer ordem). Os termos
+    // são procurados apenas se aparecem por completo na linha — quando o
+    // wrapText quebra um termo entre linhas, ele cai no caminho regular.
+    const dividirEmFragmentos = (texto, termo) => {
+      const idx = texto.indexOf(termo);
+      if (idx === -1) return [{ texto, bold: false }];
+      const out = [];
+      if (idx > 0) out.push({ texto: texto.substring(0, idx), bold: false });
+      out.push({ texto: termo, bold: true });
+      const resto = texto.substring(idx + termo.length);
+      if (resto) out.push({ texto: resto, bold: false });
+      return out;
     };
+
+    const fragmentarLinha = (linha) => {
+      let fragmentos = [{ texto: linha, bold: false }];
+      // Aplica nome do aluno
+      fragmentos = fragmentos.flatMap(f =>
+        !f.bold && nomeAlunoTrim && f.texto.includes(nomeAlunoTrim)
+          ? dividirEmFragmentos(f.texto, nomeAlunoTrim)
+          : [f]
+      );
+      // Aplica nome do curso
+      fragmentos = fragmentos.flatMap(f =>
+        !f.bold && nomeCursoTrim && f.texto.includes(nomeCursoTrim)
+          ? dividirEmFragmentos(f.texto, nomeCursoTrim)
+          : [f]
+      );
+      return fragmentos;
+    };
+
+    // pdf-lib's widthOfTextAtSize IGNORA espaços nas bordas. Para preservar
+    // o espaçamento entre fragmentos, medimos espaços de borda explicitamente.
     const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
-
-    const tokenize = (linha) => {
-      const regex = new RegExp(`(${NOME_PLACEHOLDER}|${CURSO_PLACEHOLDER})`, 'g');
-      const partes = linha.split(regex);
-      const segs = [];
-      partes.forEach((parte) => {
-        if (!parte) return;
-        if (PLACEHOLDERS[parte] !== undefined) {
-          segs.push({ texto: PLACEHOLDERS[parte], bold: true, width: null });
-        } else {
-          // Separa espaços de borda do conteúdo central para medir corretamente
-          const limpo = sanitize(parte);
-          const matchEsq = limpo.match(/^ +/);
-          const matchDir = limpo.match(/ +$/);
-          const espEsq = matchEsq ? matchEsq[0].length : 0;
-          const espDir = matchDir ? matchDir[0].length : 0;
-          const centro = limpo.slice(espEsq, limpo.length - espDir);
-
-          if (espEsq > 0) segs.push({ texto: ' '.repeat(espEsq), bold: false, width: wSpace * espEsq });
-          if (centro.length > 0) segs.push({ texto: centro, bold: false, width: null });
-          if (espDir > 0) segs.push({ texto: ' '.repeat(espDir), bold: false, width: wSpace * espDir });
-        }
-      });
-      // Remove espaços nas BORDAS da linha (início/fim), mas preserva entre segmentos
-      while (segs.length > 0 && segs[0].texto.trim() === '') segs.shift();
-      while (segs.length > 0 && segs[segs.length - 1].texto.trim() === '') segs.pop();
-      return segs;
+    const medirFragmento = (frag) => {
+      const f = frag.bold ? fontBold : fontRegular;
+      const matchEsq = frag.texto.match(/^ +/);
+      const matchDir = frag.texto.match(/ +$/);
+      const espEsq = matchEsq ? matchEsq[0].length : 0;
+      const espDir = matchDir ? matchDir[0].length : 0;
+      const miolo = frag.texto.slice(espEsq, frag.texto.length - espDir);
+      const wMiolo = miolo.length > 0 ? f.widthOfTextAtSize(miolo, fontSize) : 0;
+      return (espEsq * wSpace) + wMiolo + (espDir * wSpace);
     };
 
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
-      const temPlaceholder = linha.includes(NOME_PLACEHOLDER) || linha.includes(CURSO_PLACEHOLDER);
+      const fragmentos = fragmentarLinha(linha);
 
-      if (temPlaceholder) {
-        const segs = tokenize(linha);
-        // Largura total considerando o width explícito dos segmentos de espaço
-        const total = segs.reduce((acc, s) => {
-          if (s.width !== null) return acc + s.width;
-          const f = s.bold ? fontBold : fontRegular;
-          return acc + f.widthOfTextAtSize(s.texto, fontSize);
-        }, 0);
-        // Centraliza, mas respeita margem esquerda mínima
-        let x = Math.max((W - total) / 2, MARGEM_ESQUERDA);
-        segs.forEach((s) => {
-          const f = s.bold ? fontBold : fontRegular;
-          if (s.texto.trim() !== '') {
-            page1.drawText(s.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
-          }
-          x += s.width !== null ? s.width : f.widthOfTextAtSize(s.texto, fontSize);
-        });
-      } else {
-        const w = fontRegular.widthOfTextAtSize(linha, fontSize);
-        const x = Math.max((W - w) / 2, MARGEM_ESQUERDA);
-        page1.drawText(linha, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
-      }
+      // Largura total da linha
+      const total = fragmentos.reduce((acc, f) => acc + medirFragmento(f), 0);
+      // Centralizado, mas nunca à esquerda da margem mínima
+      let x = Math.max((W - total) / 2, MARGEM_MIN);
+
+      fragmentos.forEach((frag) => {
+        const f = frag.bold ? fontBold : fontRegular;
+        // Desenha apenas se houver conteúdo não-vazio (drawText ignora bordas)
+        if (frag.texto.length > 0) {
+          page1.drawText(frag.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
+        }
+        x += medirFragmento(frag);
+      });
     });
 
     // ==================== VERSO ====================
