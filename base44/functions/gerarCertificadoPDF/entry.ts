@@ -118,19 +118,19 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Texto centralizado (escalado para A4 paisagem 842×595pt)
-    const fontSize = 16;
-    const lineHeight = 24;
-    // Margens laterais ampliadas (~100pt cada lado) para respiro visual
-    const maxTextWidth = W - 200;
+    // ===== Configuração do texto principal (A4 landscape 842×595pt) =====
+    const MARGEM_ESQUERDA = 120;
+    const MARGEM_DIREITA = 120;
+    const maxTextWidth = W - MARGEM_ESQUERDA - MARGEM_DIREITA; // 602pt
+    const fontSize = 14;
+    const lineHeight = Math.round(fontSize * 1.6); // 22pt
 
     // Sanitiza removendo caracteres de controle que o WinAnsi não codifica
     const sanitize = (s) => (s || '').replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
     // Substitui nome do aluno e nome do curso por placeholders ANTES do wrap.
-    // Motivo: strings com espaços internos (ex: "DANIEL W. MOYA CATRINO")
-    // são fragmentadas pelo wrapText (split por espaços), perdendo a
-    // referência. Placeholders são ASCII puro, sem caracteres especiais.
+    // Placeholders são ASCII puro, evitando fragmentação por wrapText e
+    // problemas de encoding WinAnsi.
     const NOME_PLACEHOLDER = 'XNOMEALUNOX';
     const CURSO_PLACEHOLDER = 'XNOMECURSOX';
     const nomeAlunoTrim = sanitize(nome_aluno).trim();
@@ -140,35 +140,47 @@ Deno.serve(async (req) => {
       .replace(nomeCursoTrim, CURSO_PLACEHOLDER);
     const linhas = wrapText(textoComPlaceholder, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
-    // Sobe o bloco: centraliza entre o título "CERTIFICADO" (topo) e as assinaturas
-    const startY = H * 0.62 + blocoH / 2 - lineHeight;
+    // Centraliza verticalmente em ~52% da altura (levemente abaixo do meio)
+    const startY = H * 0.52 + blocoH / 2 - lineHeight;
 
-    // Tokeniza uma linha em segmentos { texto, bold } com base nos placeholders.
-    // Suporta múltiplos placeholders (nome do aluno e/ou nome do curso) na mesma linha.
+    // Tokeniza uma linha em segmentos { texto, bold }.
+    // CRÍTICO: pdf-lib's widthOfTextAtSize IGNORA espaços nas bordas de uma
+    // string. Por isso, segmentos como " concluiu " seriam medidos como
+    // "concluiu" mas desenhados sem os espaços — eliminando o espaço entre
+    // texto regular e placeholders em negrito. Solução: separar os espaços
+    // de borda em segmentos próprios (medidos explicitamente com ' ').
     const PLACEHOLDERS = {
       [NOME_PLACEHOLDER]: nomeAlunoTrim,
       [CURSO_PLACEHOLDER]: nomeCursoTrim,
     };
+    const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
+
     const tokenize = (linha) => {
-      // Regex que captura qualquer um dos placeholders
       const regex = new RegExp(`(${NOME_PLACEHOLDER}|${CURSO_PLACEHOLDER})`, 'g');
       const partes = linha.split(regex);
       const segs = [];
       partes.forEach((parte) => {
         if (!parte) return;
         if (PLACEHOLDERS[parte] !== undefined) {
-          segs.push({ texto: PLACEHOLDERS[parte], bold: true });
+          segs.push({ texto: PLACEHOLDERS[parte], bold: true, width: null });
         } else {
-          segs.push({ texto: sanitize(parte), bold: false });
+          // Separa espaços de borda do conteúdo central para medir corretamente
+          const limpo = sanitize(parte);
+          const matchEsq = limpo.match(/^ +/);
+          const matchDir = limpo.match(/ +$/);
+          const espEsq = matchEsq ? matchEsq[0].length : 0;
+          const espDir = matchDir ? matchDir[0].length : 0;
+          const centro = limpo.slice(espEsq, limpo.length - espDir);
+
+          if (espEsq > 0) segs.push({ texto: ' '.repeat(espEsq), bold: false, width: wSpace * espEsq });
+          if (centro.length > 0) segs.push({ texto: centro, bold: false, width: null });
+          if (espDir > 0) segs.push({ texto: ' '.repeat(espDir), bold: false, width: wSpace * espDir });
         }
       });
-      // Trim apenas das bordas: remove espaços do início do primeiro
-      // segmento e do fim do último, preservando espaços internos entre segmentos.
-      if (segs.length > 0) {
-        segs[0].texto = segs[0].texto.replace(/^ +/, '');
-        segs[segs.length - 1].texto = segs[segs.length - 1].texto.replace(/ +$/, '');
-      }
-      return segs.filter(s => s.texto.length > 0);
+      // Remove espaços nas BORDAS da linha (início/fim), mas preserva entre segmentos
+      while (segs.length > 0 && segs[0].texto.trim() === '') segs.shift();
+      while (segs.length > 0 && segs[segs.length - 1].texto.trim() === '') segs.pop();
+      return segs;
     };
 
     linhas.forEach((linha, idx) => {
@@ -177,22 +189,25 @@ Deno.serve(async (req) => {
 
       if (temPlaceholder) {
         const segs = tokenize(linha);
-        // Calcula largura total para centralizar
+        // Largura total considerando o width explícito dos segmentos de espaço
         const total = segs.reduce((acc, s) => {
+          if (s.width !== null) return acc + s.width;
           const f = s.bold ? fontBold : fontRegular;
           return acc + f.widthOfTextAtSize(s.texto, fontSize);
         }, 0);
-        let x = (W - total) / 2;
+        // Centraliza, mas respeita margem esquerda mínima
+        let x = Math.max((W - total) / 2, MARGEM_ESQUERDA);
         segs.forEach((s) => {
           const f = s.bold ? fontBold : fontRegular;
-          page1.drawText(s.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
-          x += f.widthOfTextAtSize(s.texto, fontSize);
+          if (s.texto.trim() !== '') {
+            page1.drawText(s.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
+          }
+          x += s.width !== null ? s.width : f.widthOfTextAtSize(s.texto, fontSize);
         });
       } else {
         const w = fontRegular.widthOfTextAtSize(linha, fontSize);
-        page1.drawText(linha, {
-          x: (W - w) / 2, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0),
-        });
+        const x = Math.max((W - w) / 2, MARGEM_ESQUERDA);
+        page1.drawText(linha, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
       }
     });
 
