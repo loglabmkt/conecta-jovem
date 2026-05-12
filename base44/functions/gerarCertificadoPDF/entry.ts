@@ -138,68 +138,35 @@ Deno.serve(async (req) => {
     // Centraliza verticalmente entre o título "CERTIFICADO" e as assinaturas (+40pt)
     const startY = H * 0.48 + 40 + blocoH / 2 - lineHeight;
 
-    // Divide uma linha em fragmentos { texto, bold } detectando ocorrências
-    // do nome do aluno e do nome do curso (em qualquer ordem). Os termos
-    // são procurados apenas se aparecem por completo na linha — quando o
-    // wrapText quebra um termo entre linhas, ele cai no caminho regular.
-    const dividirEmFragmentos = (texto, termo) => {
-      const idx = texto.indexOf(termo);
-      if (idx === -1) return [{ texto, bold: false }];
-      const out = [];
-      if (idx > 0) out.push({ texto: texto.substring(0, idx), bold: false });
-      out.push({ texto: termo, bold: true });
-      const resto = texto.substring(idx + termo.length);
-      if (resto) out.push({ texto: resto, bold: false });
-      return out;
-    };
-
-    const fragmentarLinha = (linha) => {
-      let fragmentos = [{ texto: linha, bold: false }];
-      // Aplica nome do aluno
-      fragmentos = fragmentos.flatMap(f =>
-        !f.bold && nomeAlunoTrim && f.texto.includes(nomeAlunoTrim)
-          ? dividirEmFragmentos(f.texto, nomeAlunoTrim)
-          : [f]
-      );
-      // Aplica nome do curso
-      fragmentos = fragmentos.flatMap(f =>
-        !f.bold && nomeCursoTrim && f.texto.includes(nomeCursoTrim)
-          ? dividirEmFragmentos(f.texto, nomeCursoTrim)
-          : [f]
-      );
-      return fragmentos;
-    };
-
-    // pdf-lib's widthOfTextAtSize IGNORA espaços nas bordas. Para preservar
-    // o espaçamento entre fragmentos, medimos espaços de borda explicitamente.
-    const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
-    const medirFragmento = (frag) => {
-      const f = frag.bold ? fontBold : fontRegular;
-      const matchEsq = frag.texto.match(/^ +/);
-      const matchDir = frag.texto.match(/ +$/);
-      const espEsq = matchEsq ? matchEsq[0].length : 0;
-      const espDir = matchDir ? matchDir[0].length : 0;
-      const miolo = frag.texto.slice(espEsq, frag.texto.length - espDir);
-      const wMiolo = miolo.length > 0 ? f.widthOfTextAtSize(miolo, fontSize) : 0;
-      return (espEsq * wSpace) + wMiolo + (espDir * wSpace);
-    };
+    // Estratégia OVERDRAW:
+    // 1) Desenha a linha INTEIRA em fonte normal (preserva 100% dos espaços)
+    // 2) Para cada termo em negrito presente na linha, mede a substring
+    //    anterior em fonte normal para achar o X exato e redesenha o termo
+    //    por cima em negrito.
+    // Vantagem: elimina problemas de medição de espaços entre fragmentos.
+    const termosBold = [nomeAlunoTrim, nomeCursoTrim].filter(Boolean);
 
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
-      const fragmentos = fragmentarLinha(linha);
 
-      // Largura total da linha
-      const total = fragmentos.reduce((acc, f) => acc + medirFragmento(f), 0);
-      // Centralizado, mas nunca à esquerda da margem mínima
-      let x = Math.max((W - total) / 2, MARGEM_MIN);
+      // Largura total e X inicial (centralizado, respeitando margem mínima)
+      const largTotal = fontRegular.widthOfTextAtSize(linha, fontSize);
+      const xInicio = Math.max((W - largTotal) / 2, MARGEM_MIN);
 
-      fragmentos.forEach((frag) => {
-        const f = frag.bold ? fontBold : fontRegular;
-        // Desenha apenas se houver conteúdo não-vazio (drawText ignora bordas)
-        if (frag.texto.length > 0) {
-          page1.drawText(frag.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
-        }
-        x += medirFragmento(frag);
+      // 1) Linha completa em fonte normal
+      page1.drawText(linha, {
+        x: xInicio, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0),
+      });
+
+      // 2) Redesenha termos em negrito por cima
+      termosBold.forEach((termo) => {
+        const i = linha.indexOf(termo);
+        if (i === -1) return;
+        const antes = linha.substring(0, i);
+        const xTermo = xInicio + fontRegular.widthOfTextAtSize(antes, fontSize);
+        page1.drawText(termo, {
+          x: xTermo, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0),
+        });
       });
     });
 
