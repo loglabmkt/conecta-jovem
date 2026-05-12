@@ -121,57 +121,73 @@ Deno.serve(async (req) => {
     // Texto centralizado (escalado para A4 paisagem 842×595pt)
     const fontSize = 16;
     const lineHeight = 24;
-    const maxTextWidth = W - 160;
+    // Margens laterais ampliadas (~100pt cada lado) para respiro visual
+    const maxTextWidth = W - 200;
 
     // Sanitiza removendo caracteres de controle que o WinAnsi não codifica
     const sanitize = (s) => (s || '').replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
-    // Substitui o nome do aluno por um placeholder ANTES do wrap.
-    // Motivo: nomes com espaços internos (ex: "DANIEL W. MOYA CATRINO")
-    // são fragmentados pelo wrapText (split por espaços), perdendo a
-    // referência. Placeholder é ASCII puro, sem caracteres especiais.
+    // Substitui nome do aluno e nome do curso por placeholders ANTES do wrap.
+    // Motivo: strings com espaços internos (ex: "DANIEL W. MOYA CATRINO")
+    // são fragmentadas pelo wrapText (split por espaços), perdendo a
+    // referência. Placeholders são ASCII puro, sem caracteres especiais.
     const NOME_PLACEHOLDER = 'XNOMEALUNOX';
+    const CURSO_PLACEHOLDER = 'XNOMECURSOX';
     const nomeAlunoTrim = sanitize(nome_aluno).trim();
-    const textoComPlaceholder = sanitize(textoFinal).replace(nomeAlunoTrim, NOME_PLACEHOLDER);
+    const nomeCursoTrim = sanitize(nome_curso).trim();
+    const textoComPlaceholder = sanitize(textoFinal)
+      .replace(nomeAlunoTrim, NOME_PLACEHOLDER)
+      .replace(nomeCursoTrim, CURSO_PLACEHOLDER);
     const linhas = wrapText(textoComPlaceholder, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
     // Sobe o bloco: centraliza entre o título "CERTIFICADO" (topo) e as assinaturas
     const startY = H * 0.62 + blocoH / 2 - lineHeight;
 
+    // Tokeniza uma linha em segmentos { texto, bold } com base nos placeholders.
+    // Suporta múltiplos placeholders (nome do aluno e/ou nome do curso) na mesma linha.
+    const PLACEHOLDERS = {
+      [NOME_PLACEHOLDER]: nomeAlunoTrim,
+      [CURSO_PLACEHOLDER]: nomeCursoTrim,
+    };
+    const tokenize = (linha) => {
+      // Regex que captura qualquer um dos placeholders
+      const regex = new RegExp(`(${NOME_PLACEHOLDER}|${CURSO_PLACEHOLDER})`, 'g');
+      const partes = linha.split(regex);
+      const segs = [];
+      partes.forEach((parte) => {
+        if (!parte) return;
+        if (PLACEHOLDERS[parte] !== undefined) {
+          segs.push({ texto: PLACEHOLDERS[parte], bold: true });
+        } else {
+          segs.push({ texto: sanitize(parte), bold: false });
+        }
+      });
+      // Trim apenas das bordas: remove espaços do início do primeiro
+      // segmento e do fim do último, preservando espaços internos entre segmentos.
+      if (segs.length > 0) {
+        segs[0].texto = segs[0].texto.replace(/^ +/, '');
+        segs[segs.length - 1].texto = segs[segs.length - 1].texto.replace(/ +$/, '');
+      }
+      return segs.filter(s => s.texto.length > 0);
+    };
+
     linhas.forEach((linha, idx) => {
       const y = startY - idx * lineHeight;
-      if (linha.includes(NOME_PLACEHOLDER)) {
-        // Dividir pelo placeholder — sem ambiguidade, mesmo para nomes
-        // com pontos/abreviações (ex: "DANIEL W. MOYA CATRINO").
-        const partes = linha.split(NOME_PLACEHOLDER);
-        const antesTrim = sanitize(partes[0]).replace(/ +$/, '');
-        const depoisTrim = sanitize(partes.slice(1).join(NOME_PLACEHOLDER)).replace(/^ +/, '');
+      const temPlaceholder = linha.includes(NOME_PLACEHOLDER) || linha.includes(CURSO_PLACEHOLDER);
 
-        // Largura do espaço explícita (widthOfTextAtSize ignora espaços de borda)
-        const wSpace = fontRegular.widthOfTextAtSize(' ', fontSize);
-        const wAntes = fontRegular.widthOfTextAtSize(antesTrim, fontSize);
-        const wNome = fontBold.widthOfTextAtSize(nomeAlunoTrim, fontSize);
-        const wDepois = fontRegular.widthOfTextAtSize(depoisTrim, fontSize);
-
-        const hasAntes = antesTrim.length > 0;
-        const hasDepois = depoisTrim.length > 0;
-        const total = wAntes
-          + (hasAntes ? wSpace : 0)
-          + wNome
-          + (hasDepois ? wSpace : 0)
-          + wDepois;
+      if (temPlaceholder) {
+        const segs = tokenize(linha);
+        // Calcula largura total para centralizar
+        const total = segs.reduce((acc, s) => {
+          const f = s.bold ? fontBold : fontRegular;
+          return acc + f.widthOfTextAtSize(s.texto, fontSize);
+        }, 0);
         let x = (W - total) / 2;
-
-        if (hasAntes) {
-          page1.drawText(antesTrim, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
-          x += wAntes + wSpace;
-        }
-        page1.drawText(nomeAlunoTrim, { x, y, size: fontSize, font: fontBold, color: rgb(0, 0, 0) });
-        x += wNome;
-        if (hasDepois) {
-          x += wSpace;
-          page1.drawText(depoisTrim, { x, y, size: fontSize, font: fontRegular, color: rgb(0, 0, 0) });
-        }
+        segs.forEach((s) => {
+          const f = s.bold ? fontBold : fontRegular;
+          page1.drawText(s.texto, { x, y, size: fontSize, font: f, color: rgb(0, 0, 0) });
+          x += f.widthOfTextAtSize(s.texto, fontSize);
+        });
       } else {
         const w = fontRegular.widthOfTextAtSize(linha, fontSize);
         page1.drawText(linha, {
