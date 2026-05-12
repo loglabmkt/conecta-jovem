@@ -135,8 +135,8 @@ Deno.serve(async (req) => {
     const textoSanitizado = sanitize(textoFinal);
     const linhas = wrapText(textoSanitizado, fontRegular, fontSize, maxTextWidth);
     const blocoH = linhas.length * lineHeight;
-    // Centraliza verticalmente entre o título "CERTIFICADO" e as assinaturas
-    const startY = H * 0.48 + blocoH / 2 - lineHeight;
+    // Centraliza verticalmente entre o título "CERTIFICADO" e as assinaturas (+40pt)
+    const startY = H * 0.48 + 40 + blocoH / 2 - lineHeight;
 
     // Divide uma linha em fragmentos { texto, bold } detectando ocorrências
     // do nome do aluno e do nome do curso (em qualquer ordem). Os termos
