@@ -1,0 +1,71 @@
+{
+  "name": "ClickEvent",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "CTA_PRIMARY",
+        "CTA_SECONDARY",
+        "NAV_CLICK",
+        "CARD_CLICK",
+        "GENERAL_CLICK"
+      ]
+    },
+    "element_tag": {
+      "type": "string"
+    },
+    "element_text": {
+      "type": "string"
+    },
+    "element_id": {
+      "type": "string"
+    },
+    "element_class": {
+      "type": "string"
+    },
+    "x_absolute": {
+      "type": "number"
+    },
+    "y_absolute": {
+      "type": "number"
+    },
+    "x_percent": {
+      "type": "number"
+    },
+    "y_percent": {
+      "type": "number"
+    },
+    "viewport_width": {
+      "type": "integer"
+    },
+    "viewport_height": {
+      "type": "integer"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ]
+    },
+    "user_agent": {
+      "type": "string"
+    },
+    "section": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "session_id",
+    "event_type"
+  ]
+}
